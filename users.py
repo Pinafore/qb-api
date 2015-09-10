@@ -11,7 +11,8 @@ class UserInfo(object):
         self.queries = defaultdict(list)
 
         # Highest index requested for each question
-        self.latest = defaultdict(lambda:-1)
+        # Using neg_one as function instead of lambda to allow pickling
+        self.latest = defaultdict(neg_one)
 
         # Dict of (answer, score, time) tuples indexed by question id.
         self.results = {}
@@ -30,3 +31,6 @@ class UserInfo(object):
         score = int(success)
         self.results[question_id] = (answer, score, datetime.now())
         return score
+
+def neg_one():
+    return -1
