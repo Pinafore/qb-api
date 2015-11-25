@@ -1,2 +1,6 @@
 .*.swp
 __pycache__
+venv/
+*.db
+users
+*.csv

@@ -1,33 +1,28 @@
+#!/usr/bin/env python3
 from flask import Flask, request
 from flask_restful import Resource, Api, abort
 import os
 import pickle
 import threading
+import sqlite3
 from threading import Lock, Timer
 from users import UserInfo
 from questions import Questions
 
 """API module for quiz bowl server. Handles requests from participants."""
 
-_SERIALIZE_PERIOD = 10
 server = Flask(__name__)
 api = Api(server, prefix="/qb-api")
 question_db = Questions()
 user_lock = Lock()
-#TODO: Replace pickling with another storage method
-if os.path.exists('userdata.p'):
-    with open('userdata.p', 'rb') as f:
-        users = pickle.load(f)
-else:
-    users = {'0':UserInfo()}
+users = set()
+# Get list of user ids
+with open('users') as f:
+    for line in f:
+        users.add(line.strip())
 
-def serializer():
-    user_lock.acquire()
-    with open("userdata.p", "wb") as f:
-        pickle.dump(users, f)
-    user_lock.release()
-    Timer(_SERIALIZE_PERIOD, serializer).start()
-serializer()
+user_info = UserInfo('users.db')
+# Periodically write out database to disk
 
 def validate_user_id(user_id):
     if user_id not in users:
@@ -80,4 +75,4 @@ api.add_resource(Question, '/question/<int:question_id>/<int:word_id>')
 api.add_resource(Answer, '/answer/<int:question_id>')
 
 if __name__ == '__main__':
-    server.run()
+    Server.run()

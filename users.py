@@ -1,36 +1,74 @@
 from collections import defaultdict
-from datetime import datetime
+import os
+from queue import Queue
+import sqlite3
+from threading import Semaphore
 
 
 """Module for storing results and other information about participants."""
 
 
 class UserInfo(object):
-    def __init__(self):
-        # Dict of lists of (word_id, time) for each word requested. Indexed by question_id.
-        self.queries = defaultdict(list)
+    def __init__(self, db_file='users.db'):
+        self.db_file = db_file
+        self.jobs = Queue()
+        # Flag to kill reader/writer thread
+        self.shutdown = False
+        if not os.path.exists(self.db_file):
+            conn = sqlite3.connect(db_file)
+            cur = conn.cursor()
+            cur.execute('CREATE TABLE queries(userid text, qid integer, wid integer, time real, PRIMARY KEY (userid, qid, wid))')
+            cur.execute('CREATE TABLE latest(userid text, qid integer, wid integer, PRIMARY KEY (userid, qid))')
+            cur.execute('CREATE TABLE results(userid text, qid integer, guess text, correct text, time real, PRIMARY KEY (userid, qid))')
+            conn.commit()
+            conn.close()
 
-        # Highest index requested for each question
-        # Using neg_one as function instead of lambda to allow pickling
-        self.latest = defaultdict(neg_one)
+    def runner(self):
+        conn = sqlite3.connect(self.db_file)
+        cur = conn.cursor()
+        while not self.shutdown:
+            job, res = self.queue.get()
+            cur.execute(*job)
+            res.content = cur.fetchall()
+            res.notify()
 
-        # Dict of (answer, score, time) tuples indexed by question id.
-        self.results = {}
+    # Wrapper for passing jobs into the sqlite thread
+    def execute(self, *job):
+        res = Result()
+        self.jobs.put((job, res))
+        res.wait()
+        return res.content
 
-    def log_query(self, question_id, word_id):
+    def log_query(self, user_id, question_id, word_id):
         """Log the time of a query from this user"""
-        self.queries[question_id].append((word_id, datetime.now()))
+        cur = self.conn.cursor()
+        res = self.execute('SELECT wid FROM latest WHERE userid=? and qid=?', (user_id, question_id))
+        if not res or word_id > res[0]:
+            curr_time = time.time()
+            self.execute('INSERT INTO queries (userid, qid, wid, time) VALUES (?,?,?,?)',\
+                            (user_id, question_id, word_id, curr_time))
+            self.execute('INSERT INTO latest (userid, qid, wid) VALUES (?,?,?,?)',\
+                            (user_id, question_id, word_id))
 
-        self.latest[question_id] = max(self.latest[question_id], word_id)
-
-    def store_result(self, question_id, answer, success):
+    def store_result(self, user_id, question_id, answer, success):
         """Store the given answer, score and time for an answered question. Returns the score."""
-        if question_id in self.results:
-            return None
-        #TODO: replace with actual logic
-        score = int(success)
-        self.results[question_id] = (answer, score, datetime.now())
-        return score
+        cur = conn.cursor()
+        res = self.execute('SELECT * FROM results WHERE userid = ? and qid = ?', (user_id, question_id))
+        if res:
+            return False
+        curr_time = time.time()
+        self.execute('INSERT INTO results (userid, qid, guess, correct, time) VALUES (?,?,?,?,?)',\
+                        (user_id, question_id, answer, str(success), curr_time))
+        return True
 
-def neg_one():
-    return -1
+    # Wrapper for sqlite3 results
+    class Result(object):
+        def __init__(self, content=None):
+            self.content = content
+            self.sem = Semaphore(0)
+
+        def wait():
+            self.sem.acquire()
+
+        def notify():
+            self.sem.release()

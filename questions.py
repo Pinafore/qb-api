@@ -1,9 +1,11 @@
 from collections import defaultdict
 import concurrent.futures as futures
 from concurrent.futures import ThreadPoolExecutor
+import csv
 from itertools import groupby
 from nltk.tokenize import word_tokenize
 from operator import itemgetter
+import os
 import pickle
 import sqlite3
 from threading import Lock
@@ -18,23 +20,44 @@ from wikipedia import RedirectError
 class Questions(object):
     def __init__(self):
         # TODO: Load question DB into memory (?)
-        conn = sqlite3.connect('./non_naqt.db')
-        cur = conn.cursor()
-        cur.execute('SELECT * FROM text')
-        sentences = groupby(cur.fetchall(), key=itemgetter(0))
+        if not os.path.exists('wiki_questions.csv'):
+            conn = sqlite3.connect('./non_naqt.db')
+            cur = conn.cursor()
+            print("Loading questions database")
+            cur.execute('SELECT * FROM text')
+            sentences = groupby(cur.fetchall(), key=itemgetter(0))
 
-        # Reduce results of search to just text
-        sentences = ((i, map(itemgetter(2), s)) for i,s in sentences)
+            # Reduce results of search to just text
+            sentences = ((i, map(itemgetter(2), s)) for i,s in sentences)
 
-        # Combine sentences into questions
-        questions = ((i, " ".join(s)) for i, s in sentences)
-        self.questions = {i: word_tokenize(s) for i, s in questions}
-        # TODO: Filter out punctuation?
-        # TODO: Wikipedify answers
-        cur.execute('SELECT id, answer from questions')
-        self.answers = {i:a for i,a in cur.fetchall()}
-        print("Wikipedifying")
-        self.answers = wikipedify(self.answers)
+            # Combine sentences into questions
+            questions = ((i, " ".join(s)) for i, s in sentences)
+
+            self.questions = {i: word_tokenize(s) for i, s in questions}
+            # TODO: Wikipedify answers
+            # TODO: Save reindexed questions
+            cur.execute('SELECT id, answer from questions')
+            answers = {i:a for i,a in cur.fetchall()}
+            print("Wikipedifying")
+            answers = wikipedify(answers)
+            with open('wiki_questions.csv', 'w') as f:
+                writer = csv.DictWriter(f, ['question', 'answer'])
+                for i, a in answers.items():
+                    writer.writerow({'question':i, 'answer':a})
+            index = 0
+            questions = []
+            answers = []
+            for i, a in enumerate(answers):
+                id_map[old_id] = i
+                q_list.append(s)
+
+        else:
+            with open('wiki_questions.csv') as f:
+                reader = csv.DictReader(f)
+                answers = {}
+                for line in reader:
+                    answers[line['question']] = line['answer']
+        self.answers = answers
 
     def get(self, question_id, word_id):
         if question_id in self.questions and word_id < len(self.questions[question_id]):
@@ -47,7 +70,7 @@ class Questions(object):
 count = 0
 # TODO: Serialize so this is a one time cost
 def wikipedify(answers):
-    answers = {1:'cat'}
+    return {'1': 'cat'}
     num_ans = len(answers)
     lock = Lock()
     def increment():
