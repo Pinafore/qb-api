@@ -2,7 +2,8 @@ from collections import defaultdict
 import os
 from queue import Queue
 import sqlite3
-from threading import Semaphore
+from threading import Semaphore, Thread, Timer
+import time
 
 
 """Module for storing results and other information about participants."""
@@ -13,7 +14,7 @@ class UserInfo(object):
         self.db_file = db_file
         self.jobs = Queue()
         # Flag to kill reader/writer thread
-        self.shutdown = False
+        self.halt = False
         if not os.path.exists(self.db_file):
             conn = sqlite3.connect(db_file)
             cur = conn.cursor()
@@ -22,37 +23,57 @@ class UserInfo(object):
             cur.execute('CREATE TABLE results(userid text, qid integer, guess text, correct text, time real, PRIMARY KEY (userid, qid))')
             conn.commit()
             conn.close()
+        self.run_thread = Thread(target=self.runner)
+        self.run_thread.start()
+        self.commit_period = 10
+        self.commit_timer = Timer(self.commit_period, self.committer)
+        self.commit_timer.start()
+
+    def shutdown(self):
+        self.commit_timer.cancel()
+        self.halt = True
+        self.jobs.put(None)
+        self.run_thread.join()
 
     def runner(self):
         conn = sqlite3.connect(self.db_file)
         cur = conn.cursor()
-        while not self.shutdown:
-            job, res = self.queue.get()
-            cur.execute(*job)
-            res.content = cur.fetchall()
-            res.notify()
+        while not self.halt:
+            print("Waiting for job")
+            t = self.jobs.get()
+            if t is None:
+                conn.commit()
+                continue
+            else:
+                job, res = t
+                print("Executing: %s" % str(job))
+                cur.execute(*job)
+                res.content = cur.fetchall()
+                res.notify()
+
+    def committer(self):
+        self.jobs.put(None)
+        Timer(self.commit_period, self.committer).start()
 
     # Wrapper for passing jobs into the sqlite thread
     def execute(self, *job):
-        res = Result()
+        res = UserInfo.Result()
         self.jobs.put((job, res))
         res.wait()
         return res.content
 
     def log_query(self, user_id, question_id, word_id):
         """Log the time of a query from this user"""
-        cur = self.conn.cursor()
         res = self.execute('SELECT wid FROM latest WHERE userid=? and qid=?', (user_id, question_id))
-        if not res or word_id > res[0]:
+        if not res or word_id > res[0][0]:
             curr_time = time.time()
             self.execute('INSERT INTO queries (userid, qid, wid, time) VALUES (?,?,?,?)',\
                             (user_id, question_id, word_id, curr_time))
-            self.execute('INSERT INTO latest (userid, qid, wid) VALUES (?,?,?,?)',\
+            self.execute('INSERT or REPLACE INTO latest (userid, qid, wid) VALUES (?,?,?)',\
                             (user_id, question_id, word_id))
 
     def store_result(self, user_id, question_id, answer, success):
         """Store the given answer, score and time for an answered question. Returns the score."""
-        cur = conn.cursor()
         res = self.execute('SELECT * FROM results WHERE userid = ? and qid = ?', (user_id, question_id))
         if res:
             return False
@@ -67,8 +88,10 @@ class UserInfo(object):
             self.content = content
             self.sem = Semaphore(0)
 
-        def wait():
+        def wait(self):
+            print("Acquring")
             self.sem.acquire()
 
-        def notify():
+        def notify(self):
+            print("Releasing")
             self.sem.release()

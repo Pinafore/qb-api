@@ -5,9 +5,11 @@ import os
 import pickle
 import threading
 import sqlite3
+from questions import Questions
+import signal
+import sys
 from threading import Lock, Timer
 from users import UserInfo
-from questions import Questions
 
 """API module for quiz bowl server. Handles requests from participants."""
 
@@ -22,7 +24,14 @@ with open('users') as f:
         users.add(line.strip())
 
 user_info = UserInfo('users.db')
-# Periodically write out database to disk
+
+# Handle sigint
+def handler(signal, frame):
+    print("Caught sigint")
+    user_info.shutdown()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, handler)
 
 def validate_user_id(user_id):
     if user_id not in users:
@@ -32,10 +41,10 @@ class Question(Resource):
     def post(self, question_id, word_id):
         """Handle word requests"""
         print("Waiting for lock")
-        user_lock.acquire()
         user_id = request.form['id']
         print("Validating ID")
         validate_user_id(user_id)
+        user_lock.acquire()
         try:
             word = question_db.get(question_id, word_id)
         except IndexError:
@@ -43,7 +52,7 @@ class Question(Resource):
             abort(400, message="Invalid question or word id.")
 
         print("Logging query")
-        users[user_id].log_query(question_id, word_id)
+        user_info.log_query(user_id, question_id, word_id)
         print("Logged query")
 
         user_lock.release()
@@ -54,9 +63,8 @@ class Answer(Resource):
         """Handle answers"""
         user_id = request.form['id']
         answer = request.form['answer']
-        user_lock.acquire()
         validate_user_id(user_id)
-
+        user_lock.acquire()
         # Check answer
         try:
             success = question_db.check_answer(question_id, answer)
@@ -64,7 +72,7 @@ class Answer(Resource):
             user_lock.release()
             abort(400, message="Invalid question id.")
 
-        score = users[user_id].store_result(question_id, answer, success)
+        score = user_info.store_result(user_id, question_id, answer, success)
         user_lock.release()
         if score is not None:
             return {'score':score}
@@ -75,4 +83,4 @@ api.add_resource(Question, '/question/<int:question_id>/<int:word_id>')
 api.add_resource(Answer, '/answer/<int:question_id>')
 
 if __name__ == '__main__':
-    Server.run()
+    server.run(debug=True)

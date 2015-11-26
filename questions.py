@@ -20,7 +20,8 @@ from wikipedia import RedirectError
 class Questions(object):
     def __init__(self):
         # TODO: Load question DB into memory (?)
-        if not os.path.exists('wiki_questions.csv'):
+        f_name = 'wiki_questions.p'
+        if not os.path.exists(f_name):
             conn = sqlite3.connect('./non_naqt.db')
             cur = conn.cursor()
             print("Loading questions database")
@@ -31,36 +32,31 @@ class Questions(object):
             sentences = ((i, map(itemgetter(2), s)) for i,s in sentences)
 
             # Combine sentences into questions
-            questions = ((i, " ".join(s)) for i, s in sentences)
+            q_gen = ((i, " ".join(s)) for i, s in sentences)
 
-            self.questions = {i: word_tokenize(s) for i, s in questions}
+            q_dict = {i: word_tokenize(s) for i, s in q_gen}
             # TODO: Wikipedify answers
             # TODO: Save reindexed questions
             cur.execute('SELECT id, answer from questions')
-            answers = {i:a for i,a in cur.fetchall()}
+            ans_dict = {i:a for i,a in cur.fetchall()}
             print("Wikipedifying")
-            answers = wikipedify(answers)
-            with open('wiki_questions.csv', 'w') as f:
-                writer = csv.DictWriter(f, ['question', 'answer'])
-                for i, a in answers.items():
-                    writer.writerow({'question':i, 'answer':a})
-            index = 0
+            wiki_answers = wikipedify(ans_dict)
             questions = []
             answers = []
-            for i, a in enumerate(answers):
-                id_map[old_id] = i
-                q_list.append(s)
 
+            for i,a in wiki_answers.items():
+                questions.append(q_dict[i])
+                answers.append(a)
+            with open(f_name, 'wb') as f:
+                pickle.dump((questions, answers), f)
         else:
-            with open('wiki_questions.csv') as f:
-                reader = csv.DictReader(f)
-                answers = {}
-                for line in reader:
-                    answers[line['question']] = line['answer']
+            with open(f_name, 'rb') as f:
+                questions,answers = pickle.load(f)
         self.answers = answers
+        self.questions = questions
 
     def get(self, question_id, word_id):
-        if question_id in self.questions and word_id < len(self.questions[question_id]):
+        if question_id < len(self.questions) and word_id < len(self.questions[question_id]):
             return self.questions[question_id][word_id]
         raise IndexError
 
@@ -70,7 +66,9 @@ class Questions(object):
 count = 0
 # TODO: Serialize so this is a one time cost
 def wikipedify(answers):
-    return {'1': 'cat'}
+    tmpk,tmpv = next(answers.items().__iter__())
+    print("tmpk: %d" % tmpk)
+    answers = {tmpk:tmpv}
     num_ans = len(answers)
     lock = Lock()
     def increment():
