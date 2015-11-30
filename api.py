@@ -58,6 +58,17 @@ class Question(Resource):
         user_lock.release()
         return {'word':word}
 
+class NumQs(Resource):
+    def get(self):
+        return {'count': len(question_db.questions)}
+
+class QLen(Resource):
+    def get(self, question_id):
+        try:
+            return {'length': len(question_db.questions[question_id])}
+        except IndexError:
+            abort(400, message="Invalid question id.")
+
 class Answer(Resource):
     def post(self, question_id):
         """Handle answers"""
@@ -72,15 +83,17 @@ class Answer(Resource):
             user_lock.release()
             abort(400, message="Invalid question id.")
 
-        score = user_info.store_result(user_id, question_id, answer, success)
+        first_answer = user_info.store_result(user_id, question_id, answer, success)
         user_lock.release()
-        if score is not None:
-            return {'score':score}
+        if first_answer:
+            return {'result':success}
         else:
             abort(400, message="An answer has already been submitted for this question.")
 
 api.add_resource(Question, '/question/<int:question_id>/<int:word_id>')
 api.add_resource(Answer, '/answer/<int:question_id>')
+api.add_resource(NumQs, '/info/count')
+api.add_resource(QLen, '/info/length/<int:question_id>')
 
 if __name__ == '__main__':
-    server.run(debug=True)
+    server.run(host='0.0.0.0')

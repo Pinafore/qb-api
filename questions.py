@@ -66,9 +66,6 @@ class Questions(object):
 count = 0
 # TODO: Serialize so this is a one time cost
 def wikipedify(answers):
-    tmpk,tmpv = next(answers.items().__iter__())
-    print("tmpk: %d" % tmpk)
-    answers = {tmpk:tmpv}
     num_ans = len(answers)
     lock = Lock()
     def increment():

@@ -4,3 +4,4 @@ venv/
 *.db
 users
 *.csv
+*.p

@@ -25,7 +25,7 @@ class UserInfo(object):
             conn.close()
         self.run_thread = Thread(target=self.runner)
         self.run_thread.start()
-        self.commit_period = 10
+        self.commit_period = 600
         self.commit_timer = Timer(self.commit_period, self.committer)
         self.commit_timer.start()
 
@@ -89,9 +89,7 @@ class UserInfo(object):
             self.sem = Semaphore(0)
 
         def wait(self):
-            print("Acquring")
             self.sem.acquire()
 
         def notify(self):
-            print("Releasing")
             self.sem.release()
