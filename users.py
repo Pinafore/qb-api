@@ -51,6 +51,11 @@ class UserInfo(object):
                 res.content = cur.fetchall()
                 res.notify()
 
+    def user_answer_tuples(self):
+        res = self.execute('SELECT userid, qid FROM results')
+        for uu, qq in res:
+            yield uu, qq
+
     def committer(self):
         self.jobs.put(None)
         Timer(self.commit_period, self.committer).start()

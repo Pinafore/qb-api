@@ -5,7 +5,7 @@ import os
 import pickle
 import threading
 import sqlite3
-from questions import Questions
+from csv_questions import CsvQuestions
 import signal
 import sys
 from threading import Lock, Timer
@@ -15,15 +15,19 @@ from users import UserInfo
 
 server = Flask(__name__)
 api = Api(server, prefix="/qb-api")
-question_db = Questions()
+question_db = CsvQuestions("demo.csv")
 user_lock = Lock()
 users = set()
 # Get list of user ids
 with open('users') as f:
     for line in f:
-        users.add(line.strip())
+        users.add(line.split('#')[0].strip())
 
 user_info = UserInfo('users.db')
+
+# get existing answers so that
+for uu, qq in user_info.user_answer_tuples():
+    question_db.check_answer(qq, uu, "")
 
 # Handle sigint
 def handler(signal, frame):
@@ -33,9 +37,11 @@ def handler(signal, frame):
 
 signal.signal(signal.SIGINT, handler)
 
+
 def validate_user_id(user_id):
     if user_id not in users:
         abort(403, message="Unrecognized user: %s" % user_id)
+
 
 class Question(Resource):
     def post(self, question_id, word_id):
@@ -46,7 +52,7 @@ class Question(Resource):
         validate_user_id(user_id)
         user_lock.acquire()
         try:
-            word = question_db.get(question_id, word_id)
+            word = question_db(question_id, word_id)
         except IndexError:
             user_lock.release()
             abort(400, message="Invalid question or word id.")
@@ -56,18 +62,26 @@ class Question(Resource):
         print("Logged query")
 
         user_lock.release()
-        return {'word':word}
+        return {'word': word}
+
+
+class Next(Resource):
+    def get(self):
+        return {'next': question_db.next()}
+
 
 class NumQs(Resource):
     def get(self):
-        return {'count': len(question_db.questions)}
+        return {'count': len(question_db)}
+
 
 class QLen(Resource):
     def get(self, question_id):
         try:
-            return {'length': len(question_db.questions[question_id])}
+            return {'length': question_db.qlen(question_id)}
         except IndexError:
             abort(400, message="Invalid question id.")
+
 
 class Answer(Resource):
     def post(self, question_id):
@@ -78,7 +92,7 @@ class Answer(Resource):
         user_lock.acquire()
         # Check answer
         try:
-            success = question_db.check_answer(question_id, answer)
+            success = question_db.check_answer(question_id, user, answer)
         except IndexError:
             user_lock.release()
             abort(400, message="Invalid question id.")

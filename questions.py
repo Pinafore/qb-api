@@ -55,7 +55,7 @@ class Questions(object):
         self.answers = answers
         self.questions = questions
 
-    def get(self, question_id, word_id):
+    def __call__(self, question_id, word_id):
         if question_id < len(self.questions) and word_id < len(self.questions[question_id]):
             return self.questions[question_id][word_id]
         raise IndexError
