@@ -66,8 +66,8 @@ class Question(Resource):
 
 
 class Next(Resource):
-    def get(self):
-        return {'next': question_db.next()}
+    def get(self, user):
+        return {'next': question_db.next(user)}
 
 
 class NumQs(Resource):
@@ -92,12 +92,13 @@ class Answer(Resource):
         user_lock.acquire()
         # Check answer
         try:
-            success = question_db.check_answer(question_id, user, answer)
+            success = question_db.check_answer(question_id, user_id, answer)
         except IndexError:
             user_lock.release()
             abort(400, message="Invalid question id.")
 
-        first_answer = user_info.store_result(user_id, question_id, answer, success)
+        first_answer = user_info.store_result(user_id, question_id,
+                                              answer, success)
         user_lock.release()
         if first_answer:
             return {'result':success}
@@ -107,6 +108,7 @@ class Answer(Resource):
 api.add_resource(Question, '/question/<int:question_id>/<int:word_id>')
 api.add_resource(Answer, '/answer/<int:question_id>')
 api.add_resource(NumQs, '/info/count')
+api.add_resource(Next, '/info/next/<int:user>')
 api.add_resource(QLen, '/info/length/<int:question_id>')
 
 if __name__ == '__main__':
