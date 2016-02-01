@@ -18,9 +18,9 @@ class UserInfo(object):
         if not os.path.exists(self.db_file):
             conn = sqlite3.connect(db_file)
             cur = conn.cursor()
-            cur.execute('CREATE TABLE queries(userid text, qid integer, wid integer, time real, PRIMARY KEY (userid, qid, wid))')
-            cur.execute('CREATE TABLE latest(userid text, qid integer, wid integer, PRIMARY KEY (userid, qid))')
-            cur.execute('CREATE TABLE results(userid text, qid integer, guess text, correct text, time real, PRIMARY KEY (userid, qid))')
+            cur.execute('CREATE TABLE queries(userid integer, qid integer, wid integer, time real, PRIMARY KEY (userid, qid, wid))')
+            cur.execute('CREATE TABLE latest(userid integer, qid integer, wid integer, PRIMARY KEY (userid, qid))')
+            cur.execute('CREATE TABLE results(userid integer, qid integer, guess text, correct text, time real, PRIMARY KEY (userid, qid))')
             conn.commit()
             conn.close()
         self.run_thread = Thread(target=self.runner)

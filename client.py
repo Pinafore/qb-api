@@ -58,7 +58,7 @@ class QbApi(object):
             raise IndexError(r.json()['message'])
         else:
             raise RuntimeError("Exception:\nStatus: %d\nResponse: %s" %
-                               (r.status_code, r.text()))
+                               (r.status_code, r.text))
 
     def submit_answer(self, question_id, answer):
         """

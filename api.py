@@ -21,12 +21,14 @@ users = set()
 # Get list of user ids
 with open('users') as f:
     for line in f:
-        users.add(line.split('#')[0].strip())
+        users.add(int(line.split('#')[0].strip()))
 
 user_info = UserInfo('users.db')
 
 # get existing answers so that
 for uu, qq in user_info.user_answer_tuples():
+    # print("Adding existing answer %i for %i %
+    print(qq, type(qq), uu, type(uu))
     question_db.check_answer(qq, uu, "")
 
 # Handle sigint
@@ -47,7 +49,7 @@ class Question(Resource):
     def post(self, question_id, word_id):
         """Handle word requests"""
         print("Waiting for lock")
-        user_id = request.form['id']
+        user_id = int(request.form['id'])
         print("Validating ID")
         validate_user_id(user_id)
         user_lock.acquire()
@@ -86,10 +88,13 @@ class QLen(Resource):
 class Answer(Resource):
     def post(self, question_id):
         """Handle answers"""
-        user_id = request.form['id']
+        user_id = int(request.form['id'])
         answer = request.form['answer']
         validate_user_id(user_id)
         user_lock.acquire()
+
+        print("Got answer for question %i" % question_id)
+        print(user_id)
         # Check answer
         try:
             success = question_db.check_answer(question_id, user_id, answer)

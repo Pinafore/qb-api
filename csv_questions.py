@@ -31,6 +31,9 @@ class CsvQuestions:
         return len(self._questions[question_id])
 
     def next(self, user):
+        print("Looking for next for %i" % user)
+        print("DB says %s from %s" %
+              (str(self._guesses[user]), str(self._guesses)))
         try:
             return min(x for x in self._questions if not x
                        in self._guesses[user])
