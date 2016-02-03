@@ -1,6 +1,7 @@
 # qb-api
 
 A server-side application to collect question answering data incrementally.  The basic overview of interactions are:
+
 1. Get a user ID
 2. Client connects to the server and gets a question ID
 3. For each question, client requests as many words as it wants (by word id) and then submits an answer
