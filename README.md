@@ -1,5 +1,29 @@
 # qb-api
 
+A server-side application to collect question answering data incrementally.  The basic overview of interactions are:
+
+1. Get a user ID
+2. Client connects to the server and gets a question ID
+3. For each question, client requests as many words as it wants (by word id) and then submits an answer
+
+Authentication and User IDs
+====
+
+Prereqs 
+==== 
+
+To run the software you must have the following python packages installed
+* flask
+* flask-restful
+* requests
+
+Running a Server
+====
+
+To start an instance of the server locally
+
+```python api.py```
+
 Currently this API has just two calls that can be made:
 
 * /qb-api/question/\<questionId>/\<wordId>
@@ -30,4 +54,8 @@ Currently this API has just two calls that can be made:
         {"score"=\<some score>}
     ```
 
-Note about answers: Answers must be the title of a wikipedia page. Answers are case insensitive.
+* /qb-api/info/next/\<user_id>
+ 
+Returns the next question ID that the user has yet to answer.
+
+Note about answers: Answers must be the title of a wikipedia page. Answers are case sensitive.
