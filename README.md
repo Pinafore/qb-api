@@ -54,7 +54,7 @@ To start an instance of the server locally:
 Note: If you do not wish to set up OAuth, you can just create the file users.csv with the contents:
 
 ```
-\<email>,\<key>
+<email>,<key>
 ```
 
 Where \<key> is any integer. Then, use id=\<key> when making calls to the server.
