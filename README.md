@@ -9,6 +9,8 @@ A server-side application to collect question answering data incrementally.  The
 Authentication and User IDs
 ====
 
+Users authenticate to this server with their Google account using OAuth 2.0.
+
 Prereqs 
 ==== 
 
@@ -16,11 +18,38 @@ To run the software you must have the following python packages installed
 * flask
 * flask-restful
 * requests
+* google-api-python-client
+* oauth2client
+
+Configuration
+====
+
+* A client\_secrets.json file must be created with the following contents:
+```json
+"web": {
+    "client_id": "<client_id>",
+    "client_secret": "<client_secret>",
+    "redirect_uris": ["<domain>/oauth2callback"],
+    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+    "token_uri": "https://accounts.google.com/o/oauth2/token"
+  }
+}
+```
+  * client\_id and client\_secret should be obtained from the Google developer's console for your account.
+  * domain example: http://mydomain.com/
+
+* A config.py file should be present with the single line:
+```python
+SECRET_KEY='mysecretkey'
+```
 
 Running a Server
 ====
 
 To start an instance of the server locally
+
+API Calls
+===
 
 ```python api.py```
 
@@ -50,7 +79,7 @@ Currently this API has just two calls that can be made:
     * May only be called once per user per question
     * Example usage:
     ```sh
-        $ curl -X POST http://127.0.0.1:5000/answer/0 -d 'id=0' -d 'answer=earth'
+        $ curl -X POST http://127.0.0.1:5000/qb-api/answer/0 -d 'id=0' -d 'answer=earth'
         {"score"=\<some score>}
     ```
 

@@ -5,3 +5,5 @@ venv/
 users
 *.csv
 *.p
+config.py
+client_secrets.json
