@@ -46,12 +46,21 @@ SECRET_KEY='mysecretkey'
 Running a Server
 ====
 
-To start an instance of the server locally
+To start an instance of the server locally:
+
+
+```python api.py```
+
+Note: If you do not wish to set up OAuth, you can just create the file users.csv with the contents:
+
+```
+\<email>,\<key>
+```
+
+Where \<key> is any integer. Then, use id=\<key> when making calls to the server.
 
 API Calls
 ===
-
-```python api.py```
 
 Currently this API has just two calls that can be made:
 
