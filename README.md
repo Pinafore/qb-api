@@ -96,4 +96,4 @@ Currently this API has just two calls that can be made:
  
 Returns the next question ID that the user has yet to answer.
 
-Note about answers: Answers must be the title of a wikipedia page. Answers are case sensitive.
+Note about answers: Answers must be the title of a wikipedia page. Answers are case sensitive. Python's unidecode function will be applied to all submitted answers.

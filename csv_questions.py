@@ -13,6 +13,7 @@ class CsvQuestions:
         self._answers = {}
         self._guesses = defaultdict(set)
 
+        print("Loading")
         for ii in DictReader(open(filename)):
             key = int(ii['id'])
             self._answers[key] = ii['answer']
@@ -44,10 +45,12 @@ class CsvQuestions:
         print("CA", user, question_id)
         self._guesses[user].add(question_id)
         print(self._guesses[user])
+        print("True answer: {}".format(self._answers[question_id]))
+        print("Type of true answer: {}".format(type(self._answers[question_id])))
         return self._answers[question_id] == answer
 
     def __call__(self, question, word):
         if question in self._questions and word in self._questions[question]:
             return self._questions[question][word]
         else:
-            return ""
+            raise KeyError

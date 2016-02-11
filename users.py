@@ -1,6 +1,6 @@
 from collections import defaultdict
 import os
-from queue import Queue
+from Queue import Queue
 import sqlite3
 from threading import Semaphore, Thread, Timer
 import time
