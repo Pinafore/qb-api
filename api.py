@@ -75,6 +75,9 @@ def register():
         email = account_service.userinfo().get().execute()['email']
         if email not in user_to_key:
             key = random.randint(0, 1<<31)
+            while key in key_to_users:
+                key = random.randint(0, 1<<31)
+
             user_to_key[email] = key
             key_to_user[key] = email
             user_csv_lock.acquire()
