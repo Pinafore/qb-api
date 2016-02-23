@@ -16,7 +16,7 @@ from users import UserInfo
 """API module for quiz bowl server. Handles requests from participants."""
 
 server = Flask(__name__)
-server.config.from_object('config')
+server.config.from_object('web.config')
 api = Api(server, prefix="/qb-api")
 question_db = CsvQuestions("demo.csv")
 user_lock = Lock()
