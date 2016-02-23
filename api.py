@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 from apiclient import discovery
 from csv_questions import CsvQuestions
 import flask
@@ -14,7 +14,6 @@ from random import SystemRandom
 import signal
 import sys
 from threading import Lock, Timer
-from unidecode import unidecode
 from users import UserInfo
 
 """API module for quiz bowl server. Handles requests from participants."""
@@ -116,7 +115,7 @@ class Question(Resource):
         user_lock.acquire()
         try:
             word = question_db(question_id, word_id)
-        except KeyError:
+        except IndexError:
             user_lock.release()
             abort(400, message="Invalid question or word id.")
 
@@ -142,7 +141,7 @@ class QLen(Resource):
     def get(self, question_id):
         try:
             return {'length': question_db.qlen(question_id)}
-        except KeyError:
+        except IndexError:
             abort(400, message="Invalid question id.")
 
 
@@ -150,7 +149,7 @@ class Answer(Resource):
     def post(self, question_id):
         """Handle answers"""
         user_id = int(request.form['id'])
-        answer = unidecode(request.form['answer'])
+        answer = request.form['answer']
         validate_user_key(user_id)
         user_lock.acquire()
 
@@ -159,7 +158,7 @@ class Answer(Resource):
         # Check answer
         try:
             success = question_db.check_answer(question_id, user_id, answer)
-        except KeyError:
+        except IndexError:
             user_lock.release()
             abort(400, message="Invalid question id.")
 
@@ -178,4 +177,4 @@ api.add_resource(Next, '/info/next/<int:user>')
 api.add_resource(QLen, '/info/length/<int:question_id>')
 
 if __name__ == '__main__':
-    server.run(host='0.0.0.0', debug=False)
+    server.run(host='0.0.0.0', debug=True)

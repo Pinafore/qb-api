@@ -7,4 +7,3 @@ users
 *.p
 config.py
 client_secrets.json
-**.pyc
