@@ -1,0 +1,5 @@
+flask
+flask-restful
+requests
+google-api-python-client
+oauth2client
