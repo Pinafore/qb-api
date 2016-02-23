@@ -58,6 +58,11 @@ def validate_token(token):
                                           scope='https://www.googleapis.com/auth/userinfo.email',
                                           redirect_uri=flask.url_for('urn:ietf:wg:oauth:2.0:oob'))
 
+
+@server.route('/status')
+def alive():
+    return "OK"
+
 # OAuth using example from goolge documentation (https://developers.google.com/api-client-library/python/auth/web-app)
 
 @server.route('/register')
@@ -175,6 +180,7 @@ api.add_resource(Answer, '/answer/<int:question_id>')
 api.add_resource(NumQs, '/info/count')
 api.add_resource(Next, '/info/next/<int:user>')
 api.add_resource(QLen, '/info/length/<int:question_id>')
+
 
 if __name__ == '__main__':
     server.run(host='0.0.0.0', debug=False)
