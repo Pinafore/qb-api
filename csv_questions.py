@@ -50,4 +50,4 @@ class CsvQuestions:
         if question in self._questions and word in self._questions[question]:
             return self._questions[question][word]
         else:
-            return ""
+            raise KeyError

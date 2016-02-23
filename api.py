@@ -115,7 +115,7 @@ class Question(Resource):
         user_lock.acquire()
         try:
             word = question_db(question_id, word_id)
-        except IndexError:
+        except KeyError:
             user_lock.release()
             abort(400, message="Invalid question or word id.")
 
@@ -141,7 +141,7 @@ class QLen(Resource):
     def get(self, question_id):
         try:
             return {'length': question_db.qlen(question_id)}
-        except IndexError:
+        except KeyError:
             abort(400, message="Invalid question id.")
 
 
@@ -158,7 +158,7 @@ class Answer(Resource):
         # Check answer
         try:
             success = question_db.check_answer(question_id, user_id, answer)
-        except IndexError:
+        except KeyError:
             user_lock.release()
             abort(400, message="Invalid question id.")
 
@@ -177,4 +177,4 @@ api.add_resource(Next, '/info/next/<int:user>')
 api.add_resource(QLen, '/info/length/<int:question_id>')
 
 if __name__ == '__main__':
-    server.run(host='0.0.0.0', debug=True)
+    server.run(host='0.0.0.0', debug=False)
