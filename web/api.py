@@ -7,9 +7,6 @@ from flask_restful import Resource, Api, abort
 import httplib2
 from oauth2client import client
 import os
-import pickle
-import threading
-import sqlite3
 from random import SystemRandom
 import signal
 import sys
@@ -45,6 +42,7 @@ for uu, qq in user_info.user_answer_tuples():
     print(qq, type(qq), uu, type(uu))
     question_db.check_answer(qq, uu, "")
 
+
 # Handle sigint
 def handler(signal, frame):
     print("Caught sigint")
@@ -52,6 +50,7 @@ def handler(signal, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, handler)
+
 
 def validate_token(token):
     flow = client.flow_from_clientsecrets('client_secrets.json',
@@ -63,8 +62,9 @@ def validate_token(token):
 def alive():
     return "OK"
 
-# OAuth using example from goolge documentation (https://developers.google.com/api-client-library/python/auth/web-app)
 
+# OAuth using example from google documentation
+# (https://developers.google.com/api-client-library/python/auth/web-app)
 @server.route('/register')
 def register():
     if 'credentials' not in flask.session:
@@ -91,11 +91,13 @@ def register():
 
         return 'Your secret key is: {}'.format(user_to_key[email])
 
+
 @server.route('/oauth2callback')
 def oauth2callback():
     flow = client.flow_from_clientsecrets('client_secrets.json',
                                           scope='https://www.googleapis.com/auth/userinfo.email',
-                                          redirect_uri=flask.url_for('oauth2callback', _external=True))
+                                          redirect_uri=flask.url_for('oauth2callback',
+                                                                     _external=True))
     if 'code' not in flask.request.args:
         auth_uri = flow.step1_get_authorize_url()
         return flask.redirect(auth_uri)
@@ -104,6 +106,7 @@ def oauth2callback():
         credentials = flow.step2_exchange(auth_code)
         flask.session['credentials'] = credentials.to_json()
         return flask.redirect(flask.url_for('register'))
+
 
 def validate_user_key(user_key):
     if user_key not in key_to_user:
