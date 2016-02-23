@@ -10,13 +10,14 @@ import os
 from random import SystemRandom
 import signal
 import sys
-from threading import Lock, Timer
+from threading import Lock
 from users import UserInfo
+import config
 
 """API module for quiz bowl server. Handles requests from participants."""
 
 server = Flask(__name__)
-server.config.from_object('web.config')
+server.config.from_object(config)
 api = Api(server, prefix="/qb-api")
 question_db = CsvQuestions("demo.csv")
 user_lock = Lock()
