@@ -3,7 +3,6 @@ __pycache__
 venv/
 *.db
 users
-*.csv
 *.p
 client_secrets.json
 **.pyc
