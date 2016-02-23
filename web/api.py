@@ -79,9 +79,9 @@ def register():
         account_service = discovery.build('oauth2', 'v2', http=http_auth)
         email = account_service.userinfo().get().execute()['email']
         if email not in user_to_key:
-            key = random.randint(0, 1<<31)
-            while key in key_to_users:
-                key = random.randint(0, 1<<31)
+            key = random.randint(0, 1 << 31)
+            while key in key_to_user:
+                key = random.randint(0, 1 << 31)
 
             user_to_key[email] = key
             key_to_user[key] = email

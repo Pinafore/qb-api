@@ -6,25 +6,33 @@ A server-side application to collect question answering data incrementally.  The
 2. Client connects to the server and gets a question ID
 3. For each question, client requests as many words as it wants (by word id) and then submits an answer
 
-Authentication and User IDs
-====
+## Authentication and User IDs
 
 Users authenticate to this server with their Google account using OAuth 2.0.
 
-Prereqs 
-==== 
+## Prereqs
+To run the QB API, you can do so using Docker or vanilla python. We suggest using vanilla python for
+development and Docker for production deployment.
 
-To run the software you must have the following python packages installed
-* flask
-* flask-restful
-* requests
-* google-api-python-client
-* oauth2client
+### Python Only
 
-Configuration
-====
+```
+cd web
+pip install -r requirements.txt
+python3 api.py
+```
 
-* A client\_secrets.json file must be created with the following contents:
+### Docker
+We assume you have `docker` and `docker-compose` installed and running
+
+```
+docker-compose build
+docker-compose up
+```
+
+## Configuration
+
+* A `client_secrets.json` file must be created with the following contents:
 ```json
 "web": {
     "client_id": "<client_id>",
@@ -35,7 +43,7 @@ Configuration
   }
 }
 ```
-  * client\_id and client\_secret should be obtained from the Google developer's console for your account.
+  * `client_id` and `client_secret` should be obtained from the Google developer's console for your account.
   * domain example: http://mydomain.com/
 
 * A config.py file should be present with the single line:
@@ -57,14 +65,14 @@ Note: If you do not wish to set up OAuth, you can just create the file users.csv
 <email>,<key>
 ```
 
-Where \<key> is any integer. Then, use id=\<key> when making calls to the server.
+Where `<key>` is any integer. Then, use `id=<key>` when making calls to the server.
 
 API Calls
 ===
 
 Currently this API has just two calls that can be made:
 
-* /qb-api/question/\<questionId>/\<wordId>
+* `/qb-api/question/<questionId>/<wordId>`
     * POST
     * Request a word of a question
     * Required fields:
@@ -72,16 +80,16 @@ Currently this API has just two calls that can be made:
     * Updates the number of words requested for this question to be wordId if it is not higher already already.
         * For example, if requests for words 0, 5, 1 and 1 of a particular question were sent, the user record of used words would be 0, 5, 5 and 5 respectively.
 
-    * Returns: Word  #\<wordId> (indexed from 0) of question #\<questionId>
+    * Returns: Word ` # <wordId>` (indexed from 0) of question `# <questionId>`
     * Example usage
     ```sh
         $ curl -X POST http://127.0.0.1:5000/qb-api/question/0/0 -d 'id=ident'
         {"word":"hello"}
     ```
 
-* /qb-api/answer/\<questionId>
+* `/qb-api/answer/<questionId>`
     * POST
-    * Submit an answer for question #\<questionId>
+    * Submit an answer for question `# <questionId>`
     * Required fields: 
         * id: A valid user id (String)
         * answer: The answer for a question (String)
@@ -92,7 +100,7 @@ Currently this API has just two calls that can be made:
         {"score"=\<some score>}
     ```
 
-* /qb-api/info/next/\<user_id>
+* `/qb-api/info/next/<user_id>`
  
 Returns the next question ID that the user has yet to answer.
 
