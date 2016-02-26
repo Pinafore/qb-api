@@ -1,67 +1,20 @@
-#!/usr/bin/env python3
-from apiclient import discovery
-from csv_questions import CsvQuestions
-import flask
-from flask import Flask, request
-from flask_restful import Resource, Api, abort
-import httplib2
-from oauth2client import client
 import os
-from random import SystemRandom
-import signal
-import sys
-from threading import Lock
-from users import UserInfo
-import config
+import httplib2
 
-"""API module for quiz bowl server. Handles requests from participants."""
+import flask
+from flask import jsonify, request
+from flask_restful import Resource, Api, abort, reqparse
 
-server = Flask(__name__)
-server.config.from_object(config)
-api = Api(server, prefix="/qb-api")
-question_db = CsvQuestions("demo.csv")
-user_lock = Lock()
+from oauth2client import client
+from apiclient import discovery
 
-user_file = 'users.csv'
-user_csv_lock = Lock()
-random = SystemRandom()
-user_to_key = {}
-key_to_user = {}
-if os.path.exists(user_file):
-    with open(user_file) as f:
-        for line in f:
-            email, key = line.strip().split(',')
-            key = int(key)
-            user_to_key[email] = key
-            key_to_user[key] = email
-
-user_info = UserInfo('users.db')
-
-# get existing answers so that
-for uu, qq in user_info.user_answer_tuples():
-    # print("Adding existing answer %i for %i %
-    print(qq, type(qq), uu, type(uu))
-    question_db.check_answer(qq, uu, "")
-
-
-# Handle sigint
-def handler(signal, frame):
-    print("Caught sigint")
-    user_info.shutdown()
-    sys.exit(0)
-
-signal.signal(signal.SIGINT, handler)
-
-
-def validate_token(token):
-    flow = client.flow_from_clientsecrets('client_secrets.json',
-                                          scope='https://www.googleapis.com/auth/userinfo.email',
-                                          redirect_uri=flask.url_for('urn:ietf:wg:oauth:2.0:oob'))
+from database import QuizBowl
+from app import server
 
 
 @server.route('/status')
 def alive():
-    return "OK"
+    return jsonify(status='OK')
 
 
 # OAuth using example from google documentation
@@ -78,113 +31,77 @@ def register():
         http_auth = credentials.authorize(httplib2.Http())
         account_service = discovery.build('oauth2', 'v2', http=http_auth)
         email = account_service.userinfo().get().execute()['email']
-        if email not in user_to_key:
-            key = random.randint(0, 1 << 31)
-            while key in key_to_user:
-                key = random.randint(0, 1 << 31)
-
-            user_to_key[email] = key
-            key_to_user[key] = email
-            user_csv_lock.acquire()
-            with open(user_file, 'a+') as f:
-                f.write('{},{}\n'.format(email, key))
-            user_csv_lock.release()
-
-        return 'Your secret key is: {}'.format(user_to_key[email])
+        api_key = os.urandom(64)
+        user = QuizBowl.create_user(email, api_key)
+        return jsonify(**user)
 
 
 @server.route('/oauth2callback')
 def oauth2callback():
-    flow = client.flow_from_clientsecrets('client_secrets.json',
+    flow = client.flow_from_clientsecrets('data/client_secrets.json',
                                           scope='https://www.googleapis.com/auth/userinfo.email',
                                           redirect_uri=flask.url_for('oauth2callback',
                                                                      _external=True))
-    if 'code' not in flask.request.args:
+    if 'code' not in request.args:
         auth_uri = flow.step1_get_authorize_url()
         return flask.redirect(auth_uri)
     else:
-        auth_code = flask.request.args.get('code')
+        auth_code = request.args.get('code')
         credentials = flow.step2_exchange(auth_code)
         flask.session['credentials'] = credentials.to_json()
         return flask.redirect(flask.url_for('register'))
 
 
-def validate_user_key(user_key):
-    if user_key not in key_to_user:
-        abort(403, message="Unrecognized user: %s" % user_key)
+def check_auth(user_id, api_key):
+    if not QuizBowl.check_auth(user_id, api_key):
+        abort(401)
+
+
+class StatusList(Resource):
+    def get(self):
+        parser = reqparse.RequestParser()
+        parser.add_argument('api_key', type=str)
+        parser.add_argument('user_id', type=int)
+        args = parser.parse_args()
+        check_auth(args['user_id'], args['api_key'])
+        return jsonify({'question_statuses': QuizBowl.question_statuses(args['user_id'])})
 
 
 class Question(Resource):
-    def post(self, question_id, word_id):
+    def post(self, question_id, position):
         """Handle word requests"""
-        print("Waiting for lock")
-        user_id = int(request.form['id'])
-        print("Validating ID")
-        validate_user_key(user_id)
-        user_lock.acquire()
-        try:
-            word = question_db(question_id, word_id)
-        except KeyError:
-            user_lock.release()
-            abort(400, message="Invalid question or word id.")
-
-        print("Logging query")
-        user_info.log_query(user_id, question_id, word_id)
-        print("Logged query")
-
-        user_lock.release()
-        return {'word': word}
-
-
-class Next(Resource):
-    def get(self, user):
-        return {'next': question_db.next(user)}
+        user_id = int(request.form['user_id'])
+        api_key = request.form['api_key']
+        check_auth(user_id, api_key)
+        word = QuizBowl.handle_word_request(user_id, question_id, position)
+        return jsonify({'word': word})
 
 
 class NumQs(Resource):
     def get(self):
-        return {'count': len(question_db)}
+        return jsonify({'count': QuizBowl.num_questions()})
 
 
 class QLen(Resource):
     def get(self, question_id):
-        try:
-            return {'length': question_db.qlen(question_id)}
-        except KeyError:
-            abort(400, message="Invalid question id.")
+        return jsonify({'length': QuizBowl.question_length(question_id)})
 
 
 class Answer(Resource):
     def post(self, question_id):
         """Handle answers"""
-        user_id = int(request.form['id'])
-        answer = request.form['answer']
-        validate_user_key(user_id)
-        user_lock.acquire()
+        user_id = int(request.form['user_id'])
+        api_key = request.form['api_key']
+        guess = request.form['guess']
+        check_auth(user_id, api_key)
+        answer, correct = QuizBowl.submit_guess(user_id, question_id, guess)
 
-        print("Got answer for question %i" % question_id)
-        print(user_id)
-        # Check answer
-        try:
-            success = question_db.check_answer(question_id, user_id, answer)
-        except KeyError:
-            user_lock.release()
-            abort(400, message="Invalid question id.")
-
-        first_answer = user_info.store_result(user_id, question_id,
-                                              answer, success)
-        user_lock.release()
-        if first_answer:
-            return {'result':success}
-        else:
-            abort(400, message="An answer has already been submitted for this question.")
-
-api.add_resource(Question, '/question/<int:question_id>/<int:word_id>')
-api.add_resource(Answer, '/answer/<int:question_id>')
-api.add_resource(NumQs, '/info/count')
-api.add_resource(Next, '/info/next/<int:user>')
-api.add_resource(QLen, '/info/length/<int:question_id>')
+        return jsonify({'correct': correct, 'answer': answer})
 
 
-if __name__ == '__main__':
-    server.run(host='0.0.0.0', debug=False)
+def create_server():
+    api = Api(server, prefix="/qb-api/v1/")
+    api.add_resource(Question, '/question/<int:question_id>/<int:position>')
+    api.add_resource(Answer, '/answer/<int:question_id>')
+    api.add_resource(NumQs, '/info/count')
+    api.add_resource(QLen, '/info/length/<int:question_id>')

@@ -1,0 +1,13 @@
+sudo: required
+
+services:
+  - docker
+
+language: python
+
+before_install:
+  - docker-compose build
+  - docker-compose up -d
+
+script:
+  - curl 127.0.0.1:80/status

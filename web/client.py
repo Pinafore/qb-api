@@ -2,21 +2,15 @@ import requests
 
 
 class QbApi(object):
-    def __init__(self, uid):
+    def __init__(self, user_id, api_key):
         """
         Creates an interface object with your provided user id
 
         user_id -- Your user id, as provided by Workshop organizers
         """
         self.base_url = 'http://127.0.0.1:5000/qb-api'
-        self.uid = uid
-
-    def next_unanswered(self, user):
-        """
-        Gives the ID of the next question lacking a registered answer.
-        """
-        r = requests.get(self.base_url + '/info/next/%d' % user)
-        return int(r.json()['next'])
+        self.user_id = user_id
+        self.api_key = api_key
 
     def get_num_questions(self):
         """
@@ -49,9 +43,8 @@ class QbApi(object):
         question_id -- ID of a question
         word_index -- The index of a word (starting at zero)
         """
-        r = requests.post(self.base_url + '/question/%d/%d' %
-                          (question_id, word_index),
-                          data={'id': self.uid})
+        r = requests.post(self.base_url + '/question/%d/%d' % (question_id, word_index),
+                          data={'user_id': self.user_id})
         if r.status_code == 200:
             return r.json()['word']
         elif r.status_code == 400:
@@ -68,7 +61,7 @@ class QbApi(object):
         answer -- The answer, as an ASCII string title of Wikipedia page
         """
         r = requests.post(self.base_url + '/answer/%d' % question_id,
-                          data={'answer': answer, 'id': self.uid})
+                          data={'answer': answer, 'id': self.user_id})
         if r.status_code == 200:
             return r.json()['result']
         elif r.status_code == 400:

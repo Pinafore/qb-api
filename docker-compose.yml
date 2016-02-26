@@ -3,7 +3,8 @@ web:
   build: ./web
   expose:
     - "5000"
-  command: /usr/local/bin/gunicorn -w 2 -b :8000 api:server
+  command: /usr/local/bin/gunicorn -w 2 -b :8000 run:server
+  env_file: .env
 
 nginx:
   restart: always
@@ -12,3 +13,18 @@ nginx:
     - "80:80"
   links:
     - web:web
+
+postgres:
+  restart: always
+  image: postgres:latest
+  ports:
+    - "5432:5432"
+
+test:
+  build: ./web
+  expose:
+    - "5000"
+  env_file: .env
+  environment:
+    AUTHORIZATION_ENABLED: '0'
+  command: bash test.sh

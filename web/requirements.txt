@@ -4,3 +4,6 @@ requests
 google-api-python-client
 oauth2client
 gunicorn
+sqlalchemy
+flask-sqlalchemy
+nose
