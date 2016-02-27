@@ -2,7 +2,7 @@ import requests
 
 
 class QbApi(object):
-    def __init__(self, user_id, api_key):
+    def __init__(self, user_id):
         """
         Creates an interface object with your provided user id
 
@@ -10,7 +10,6 @@ class QbApi(object):
         """
         self.base_url = 'http://127.0.0.1:5000/qb-api'
         self.user_id = user_id
-        self.api_key = api_key
 
     def get_num_questions(self):
         """
