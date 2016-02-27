@@ -9,6 +9,7 @@ server.config.from_object(config.BaseConfig)
 db = SQLAlchemy(server)
 
 import api
+api.create_server()
 
 
 def run():

@@ -100,7 +100,7 @@ class Answer(Resource):
 
 
 def create_server():
-    api = Api(server, prefix="/qb-api/v1/")
+    api = Api(server, prefix="/qb-api/v1")
     api.add_resource(Question, '/question/<int:question_id>/<int:position>')
     api.add_resource(Answer, '/answer/<int:question_id>')
     api.add_resource(NumQs, '/info/count')
