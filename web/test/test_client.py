@@ -1,4 +1,4 @@
-import QbApi
+from client import QbApi
 import unittest
 
 
