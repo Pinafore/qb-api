@@ -70,6 +70,7 @@ class StatusList(Resource):
 class Question(Resource):
     def post(self, question_id, position):
         """Handle word requests"""
+        print("Question_id: {} Position: {}".format(repr(question_id), repr(position)))
         user_id = int(request.form['user_id'])
         api_key = request.form['api_key']
         check_auth(user_id, api_key)

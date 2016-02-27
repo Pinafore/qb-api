@@ -2,14 +2,15 @@ import requests
 
 
 class QbApi(object):
-    def __init__(self, user_id):
+    def __init__(self, base_url, user_id, api_key):
         """
         Creates an interface object with your provided user id
 
         user_id -- Your user id, as provided by Workshop organizers
         """
-        self.base_url = 'http://127.0.0.1:5000/qb-api'
+        self.base_url = base_url
         self.user_id = user_id
+        self.api_key = api_key
 
     def get_num_questions(self):
         """
@@ -32,7 +33,7 @@ class QbApi(object):
             raise IndexError(r.json()['message'])
         else:
             raise RuntimeError("Exception:\nStatus: %d\nResponse: %s" %
-                               (r.status_code, r.text()))
+                               (r.status_code, r.text))
 
     def get_word(self, question_id, word_index):
         """
@@ -43,7 +44,7 @@ class QbApi(object):
         word_index -- The index of a word (starting at zero)
         """
         r = requests.post(self.base_url + '/question/%d/%d' % (question_id, word_index),
-                          data={'user_id': self.user_id})
+                          data={'user_id': self.user_id, 'api_key': self.api_key})
         if r.status_code == 200:
             return r.json()['word']
         elif r.status_code == 400:
@@ -60,11 +61,11 @@ class QbApi(object):
         answer -- The answer, as an ASCII string title of Wikipedia page
         """
         r = requests.post(self.base_url + '/answer/%d' % question_id,
-                          data={'answer': answer, 'id': self.user_id})
+                          data={'answer': answer, 'user_id': self.user_id, 'api_key': self.api_key})
         if r.status_code == 200:
             return r.json()['result']
         elif r.status_code == 400:
             raise ValueError(r.json()['message'])
         else:
             raise RuntimeError("Exception:\nStatus: %d\nResponse: %s" %
-                               (r.status_code, r.text()))
+                               (r.status_code, r.text))
