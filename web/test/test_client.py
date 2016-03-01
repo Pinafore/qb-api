@@ -3,8 +3,9 @@ import unittest
 
 
 USER_ID = 0
-BASE_URL= 'http://127.0.0.1:5000/qb-api/v1'
+BASE_URL = 'http://127.0.0.1:5000/qb-api/v1'
 API_KEY = 0
+
 
 class QuizBowlClientTests(unittest.TestCase):
     def test_get_num_questions(self):
