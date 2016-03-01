@@ -5,6 +5,9 @@ web:
     - "5000"
   command: /usr/local/bin/gunicorn -w 2 -b :8000 run:server
   env_file: .env
+  volumes:
+    - ./web/data:/usr/src/app/web/data
+    - /var/lib/postgresql/data:/var/lib/postgresql/data
 
 nginx:
   restart: always
