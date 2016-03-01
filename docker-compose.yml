@@ -9,6 +9,17 @@ web:
     - ./web/data:/usr/src/app/web/data
     - /var/lib/postgresql/data:/var/lib/postgresql/data
 
+dev:
+  restart: always
+  build: ./web
+  expose:
+    - "80":"80"
+  command: python run.py
+  env_file: .env
+  volumes:
+    - ./web/data:/usr/src/app/web/data
+    - /var/lib/postgresql/data:/var/lib/postgresql/data
+
 nginx:
   restart: always
   build: ./nginx/
