@@ -41,7 +41,8 @@ def register():
         return jsonify(**user)
 
 
-@server.route('/qb-api/v1/questions'):
+@server.route('/qb-api/v1/questions')
+def list_questions():
     return jsonify(**QuizBowl.list_questions())
 
 
