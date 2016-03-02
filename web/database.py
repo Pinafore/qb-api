@@ -70,7 +70,7 @@ class QuizBowl:
 
     @staticmethod
     def handle_word_request(user_id, question_id, position):
-        word = Word.query.filter(question_id=question_id, position=position).first()
+        word = Word.query.filter_by(question_id=question_id, position=position).first()
         if word is None:
             abort(400, message='Invalid question id and position')
         status = QuestionStatus.query.filter(
