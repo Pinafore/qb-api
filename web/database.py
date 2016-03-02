@@ -139,7 +139,7 @@ class QuizBowl:
 
     @staticmethod
     def check_auth(user_id, api_key):
-        return User.query.filter(User.user_id == user_id and User.api_key == api_key).count() == 1
+        return User.query.filter(User.id == user_id and User.api_key == api_key).count() == 1
 
     @staticmethod
     def num_questions():
