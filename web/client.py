@@ -69,7 +69,8 @@ class QbApi(object):
         r = requests.post(self.base_url + '/answer/%d' % question_id,
                           data={'guess': answer, 'user_id': self.user_id, 'api_key': self.api_key})
         if r.status_code == 200:
-            return r.json()['result']
+            return None
+            # return r.json()['result']
         elif r.status_code == 400:
             raise ValueError(r.json()['message'])
         else:
