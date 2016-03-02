@@ -131,7 +131,7 @@ class QuizBowl:
     def create_user(email, api_key):
         user = User.query.filter(User.email == email).first()
         if user is not None:
-            abort(400, "User with that email exists, api key is {0}".format(user.api_key))
+            abort(400, "User with that email exists, api key is {0}, user_id is {1}".format(user.api_key, user.id))
         user = User(email=email, api_key=api_key)
         db.session.add(user)
         db.session.commit()
