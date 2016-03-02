@@ -92,7 +92,7 @@ class QuizBowl:
             Query(user_id=user_id, question_id=question_id, word_id=word.id)
         )
         db.session.commit()
-        return word
+        return {'position': word.position, 'question_id': word.question_id, 'text': word.text}
 
     @staticmethod
     def submit_guess(user_id, question_id, guess):
