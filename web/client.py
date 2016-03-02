@@ -12,11 +12,17 @@ class QbApi(object):
         self.user_id = user_id
         self.api_key = api_key
 
+    def get_all_questions(self):
+        r = requests.get(self.base_url + '/questions')
+        return r.json()['questions']
+
     def get_num_questions(self):
         """
         Returns an integer count of questions
         """
-        r = requests.get(self.base_url + '/info/count')
+        r = requests.get(self.base_url + '/info/count',
+            data={'user_id': self.user_id, 'api_key': self.api_key})
+        print(r)
         return int(r.json()['count'])
 
     def get_question_length(self, question_id):
@@ -61,7 +67,7 @@ class QbApi(object):
         answer -- The answer, as an ASCII string title of Wikipedia page
         """
         r = requests.post(self.base_url + '/answer/%d' % question_id,
-                          data={'answer': answer, 'user_id': self.user_id, 'api_key': self.api_key})
+                          data={'guess': answer, 'user_id': self.user_id, 'api_key': self.api_key})
         if r.status_code == 200:
             return r.json()['result']
         elif r.status_code == 400:
