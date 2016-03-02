@@ -157,6 +157,12 @@ class QuizBowl:
     def question_statuses(user_id):
         return QuestionStatus.query.filter(QuestionStatus.user_id == user_id).all()
 
+    @staticmethod
+    def list_questions():
+        questions = Question.query.all()
+        question_list = map(lambda q: {'id': q.id, 'word_count': len(q.words)}, questions)
+        return {'questions': list(question_list)}
+
 
 def load_questions(filename='data/demo.csv'):
     Question.query.delete()

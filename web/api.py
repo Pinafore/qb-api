@@ -41,6 +41,10 @@ def register():
         return jsonify(**user)
 
 
+@server.route('/qb-api/v1/questions'):
+    return jsonify(**QuizBowl.list_questions())
+
+
 @server.route('/oauth2callback')
 def oauth2callback():
     flow = client.flow_from_clientsecrets('data/client_secrets.json',
