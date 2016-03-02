@@ -101,7 +101,7 @@ class QuizBowl:
         if count > 0:
             abort(400, 'Answered question already')
 
-        question = Question.query.filter(id=question_id).first()
+        question = Question.query.filter_by(id=question_id).first()
         if question is None:
             abort(400, 'Question does not exist')
         correct = question.answer == guess
