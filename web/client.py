@@ -67,7 +67,7 @@ class QbApi(object):
         answer -- The answer, as an ASCII string title of Wikipedia page
         """
         r = requests.post(self.base_url + '/answer/%d' % question_id,
-                          data={'answer': answer, 'user_id': self.user_id, 'api_key': self.api_key})
+                          data={'guess': answer, 'user_id': self.user_id, 'api_key': self.api_key})
         if r.status_code == 200:
             return r.json()['result']
         elif r.status_code == 400:
