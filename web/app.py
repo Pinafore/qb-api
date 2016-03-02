@@ -14,4 +14,4 @@ api.create_server()
 
 def run():
     db.create_all()
-    server.run(host='0.0.0.0', debug=True)
+    server.run(host='0.0.0.0', debug=True, port=80)

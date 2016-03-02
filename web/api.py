@@ -1,4 +1,5 @@
-import os
+import string
+import random
 import httplib2
 
 import flask
@@ -10,6 +11,10 @@ from apiclient import discovery
 
 from database import QuizBowl
 from app import server
+
+
+def generate_api_key():
+    return ''.join(random.choice(string.ascii_letters) for i in range(64))
 
 
 @server.route('/status')
@@ -31,7 +36,7 @@ def register():
         http_auth = credentials.authorize(httplib2.Http())
         account_service = discovery.build('oauth2', 'v2', http=http_auth)
         email = account_service.userinfo().get().execute()['email']
-        api_key = os.urandom(64)
+        api_key = generate_api_key()
         user = QuizBowl.create_user(email, api_key)
         return jsonify(**user)
 

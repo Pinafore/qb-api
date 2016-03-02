@@ -1,5 +1,5 @@
 web:
-  restart: always
+  restart: on-failure:5
   build: ./web
   expose:
     - "5000"
@@ -8,20 +8,23 @@ web:
   volumes:
     - ./web/data:/usr/src/app/web/data
     - /var/lib/postgresql/data:/var/lib/postgresql/data
+  links:
+    - postgres:postgres
 
 dev:
-  restart: always
   build: ./web
+  ports:
+    - "80:80"
   expose:
-    - "80":"80"
-  command: python run.py
+    - "80"
+  command: ./run-debug.sh
   env_file: .env
   volumes:
     - ./web/data:/usr/src/app/web/data
-    - /var/lib/postgresql/data:/var/lib/postgresql/data
+  links:
+    - postgres:postgres
 
 nginx:
-  restart: always
   build: ./nginx/
   ports:
     - "80:80"
@@ -29,8 +32,9 @@ nginx:
     - web:web
 
 postgres:
-  restart: always
   image: postgres:latest
+  volumes:
+    - /var/lib/postgresql/data:/var/lib/postgresql/data
   ports:
     - "5432:5432"
 
