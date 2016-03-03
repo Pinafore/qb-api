@@ -2,8 +2,8 @@ from client import QbApi
 import sys
 
 # mohit's credentials (for debugging)
-user_id = 8
-api_key = 'bATNRViQvMtSjDxyKEtUAZIFDoSyhTrGsamvWSlsUWpjWxGdDQXPCylIWQRgBMxC'
+user_id = 9
+api_key = 'jmMSHNOrpBnRbxppVXmBgCwwepLbIYfmSWkDglIPHNpnajEOheKfEYzgKaoJSMon'
 
 class StringAnswerer:
     """
@@ -34,7 +34,6 @@ class StringAnswerer:
             next_q = int(qdict['id'])
             qlen = int(qdict['word_count'])
             current_question = ""
-            curr_words = ""
             qlen = self._server.get_question_length(next_q)
             print("Currently answering question %i, which has %i tokens" % \
                 (next_q, qlen))
