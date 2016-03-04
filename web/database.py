@@ -50,6 +50,7 @@ class Question(db.Model):
     qb_id = db.Column(db.Integer)
     words = db.relationship('Word', backref='question')
     answer = db.Column(db.String, nullable=False)
+    fold = db.Column(db.String, nullable=False)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -73,10 +74,8 @@ class QuizBowl:
         word = Word.query.filter_by(question_id=question_id, position=position).first()
         if word is None:
             abort(400, message='Invalid question id and position')
-        status = QuestionStatus.query.filter(
-            QuestionStatus.user_id == user_id and
-            QuestionStatus.question_id == question_id and
-            QuestionStatus.position == position).first()
+        status = QuestionStatus.query.filter_by(
+            user_id=user_id, question_id=question_id, position=position).first()
         if status:
             if status.position < word.position:
                 status.position = word.position
@@ -96,8 +95,7 @@ class QuizBowl:
 
     @staticmethod
     def submit_guess(user_id, question_id, guess):
-        count = Result.query.filter(
-            Result.user_id == user_id and Result.question_id == question_id).count()
+        count = Result.query.filter_by(user_id=user_id, question_id=question_id).count()
         if count > 0:
             abort(400, 'Answered question already')
 
@@ -105,8 +103,7 @@ class QuizBowl:
         if question is None:
             abort(400, 'Question does not exist')
         correct = question.answer == guess
-        status = QuestionStatus.query.filter(
-            user_id == QuestionStatus.user_id and question_id == QuestionStatus.question_id).first()
+        status = QuestionStatus.query.filter_by(user_id=user_id, question_id=question_id).first()
         result = Result(
             user_id=user_id,
             question_id=question_id,
@@ -120,8 +117,7 @@ class QuizBowl:
 
     @staticmethod
     def store_result(user_id, question_id, answer, correct):
-        result = Result.query.filter(
-            Result.user_id == user_id and Result.question_id == question_id).count()
+        result = Result.query.filter_by(user_id=user_id, question_id=question_id).count()
         if result == 0:
             db.session.add(
                 Result(user_id=user_id, question_id=question_id, answer=answer, correct=correct))
@@ -129,7 +125,7 @@ class QuizBowl:
 
     @staticmethod
     def create_user(email, api_key):
-        user = User.query.filter(User.email == email).first()
+        user = User.query.filter_by(email=email).first()
         if user is not None:
             abort(400, "User with that email exists, api key is {0}, user_id is {1}".format(user.api_key, user.id))
         user = User(email=email, api_key=api_key)
@@ -139,7 +135,7 @@ class QuizBowl:
 
     @staticmethod
     def check_auth(user_id, api_key):
-        return User.query.filter(User.id == user_id and User.api_key == api_key).count() == 1
+        return User.query.filter_by(id=user_id, api_key=api_key).count() == 1
 
     @staticmethod
     def num_questions():
@@ -147,7 +143,7 @@ class QuizBowl:
 
     @staticmethod
     def question_length(question_id):
-        question = Question.query.filter(Question.id == question_id).first()
+        question = Question.query.filter_by(id=question_id).first()
         if question:
             return len(question.words)
         else:
@@ -155,7 +151,7 @@ class QuizBowl:
 
     @staticmethod
     def question_statuses(user_id):
-        return QuestionStatus.query.filter(QuestionStatus.user_id == user_id).all()
+        return QuestionStatus.query.filter_by(user_id=user_id).all()
 
     @staticmethod
     def list_questions():
