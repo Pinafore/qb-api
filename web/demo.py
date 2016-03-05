@@ -2,8 +2,8 @@ from client import QbApi
 import sys
 
 # mohit's credentials (for debugging)
-user_id = 9
-api_key = 'jmMSHNOrpBnRbxppVXmBgCwwepLbIYfmSWkDglIPHNpnajEOheKfEYzgKaoJSMon'
+user_id = 1
+api_key = 'AAqbXBpqYmCtynbCzrFfvVZFHVoDfiOQsNdhgvROdfmIBayvFzfRxHLXKlyNMRLV'
 
 class StringAnswerer:
     """
@@ -41,19 +41,19 @@ class StringAnswerer:
                 curr_word_info = self._server.get_word(next_q, ii)
                 curr_word = curr_word_info['text']
                 print(curr_word, end=' ')
-                sys.stdout.flush()
                 current_question += ' ' + curr_word
                 if answer == "" and any(x in current_question.lower()
                                         for x in self._patterns):
                     answer = [self._patterns[x] for x in self._patterns if
                               x in current_question.lower()][0]
-                    print("\nANSWERING! %i %i (%s)" % (next_q, ii, answer))
-                    print(next_q, current_question, answer)
+                    print("\nANSWERING! %i %i (%s)\n" % (next_q, ii, answer))
                     self._server.submit_answer(next_q, answer)
- 
+                    break
+                sys.stdout.flush()
+
             # Submit some answer if the question is unanswered by the end
             if answer == "":
-                print("\nANSWERING! %i %i (%s)" % (next_q, qlen, "Chinua Achebe"))
+                print("\nANSWERING! %i %i (%s)\n" % (next_q, qlen, "Chinua Achebe"))
                 self._server.submit_answer(next_q, "Chinua Achebe")
 
             answer = ""
