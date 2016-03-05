@@ -75,7 +75,7 @@ class QuizBowl:
         if word is None:
             abort(400, message='Invalid question id and position')
         status = QuestionStatus.query.filter_by(
-            user_id=user_id, question_id=question_id, position=position).first()
+            user_id=user_id, question_id=question_id).first()
         if status:
             if status.position < word.position:
                 status.position = word.position
