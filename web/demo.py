@@ -1,5 +1,5 @@
 from client import QbApi
-import sys
+import sys, time
 
 # mohit's credentials (for debugging)
 user_id = 1
@@ -31,6 +31,7 @@ class StringAnswerer:
 
         answer = ""
         for qdict in self._server.get_all_questions():
+            start = time.time()
             next_q = int(qdict['id'])
             qlen = int(qdict['word_count'])
             current_question = ""
@@ -46,17 +47,18 @@ class StringAnswerer:
                                         for x in self._patterns):
                     answer = [self._patterns[x] for x in self._patterns if
                               x in current_question.lower()][0]
-                    print("\nANSWERING! %i %i (%s)\n" % (next_q, ii, answer))
+                    print("\nANSWERING! %i %i (%s)" % (next_q, ii, answer))
                     self._server.submit_answer(next_q, answer)
                     break
                 sys.stdout.flush()
 
             # Submit some answer if the question is unanswered by the end
             if answer == "":
-                print("\nANSWERING! %i %i (%s)\n" % (next_q, qlen, "Chinua Achebe"))
+                print("\nANSWERING! %i %i (%s)" % (next_q, qlen, "Chinua Achebe"))
                 self._server.submit_answer(next_q, "Chinua Achebe")
 
             answer = ""
+            print("took %f seconds\n" % (time.time() - start, ))
 
 if __name__ == "__main__":
 
