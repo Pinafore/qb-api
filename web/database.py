@@ -6,6 +6,9 @@ from flask import abort
 from app import db
 
 
+LIMITS = False
+
+
 class QuestionStatus(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     question_id = db.Column(db.Integer, db.ForeignKey('question.id'), primary_key=True)
@@ -95,8 +98,8 @@ class QuizBowl:
 
     @staticmethod
     def submit_guess(user_id, question_id, guess):
-        count = Result.query.filter_by(user_id=user_id, question_id=question_id).count()
-        if count > 0:
+        result = Result.query.filter_by(user_id=user_id, question_id=question_id).first()
+        if result is not None and LIMITS:
             abort(400, 'Answered question already')
 
         question = Question.query.filter_by(id=question_id).first()
@@ -104,13 +107,19 @@ class QuizBowl:
             abort(400, 'Question does not exist')
         correct = question.answer == guess
         status = QuestionStatus.query.filter_by(user_id=user_id, question_id=question_id).first()
-        result = Result(
-            user_id=user_id,
-            question_id=question_id,
-            guess=guess,
-            correct=correct,
-            position=status.position,
-            word_id=status.word_id)
+        if result is None:
+            result = Result(
+                user_id=user_id,
+                question_id=question_id,
+                guess=guess,
+                correct=correct,
+                position=status.position,
+                word_id=status.word_id)
+        else:
+            result.guess = guess
+            result.correct = correct
+            result.position = status.position
+            result.word_id = status.word_id
         db.session.add(result)
         db.session.commit()
         return question.answer, correct
