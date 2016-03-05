@@ -166,7 +166,7 @@ def load_questions(filename='data/demo.csv'):
         questions = DictReader(f)
         for q in questions:
             q_id = int(q['id'])
-            question = Question(qb_id=q_id, answer=q['answer'])
+            question = Question(qb_id=q_id, answer=q['answer'], fold='dev')
             for i, word in enumerate(q['text'].split()):
                 question.words.append(Word(text=word, position=i))
             db.session.add(question)
