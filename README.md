@@ -27,12 +27,27 @@ The QB API uses JSON for all communication which means it interops with any user
 2. `requests` package installable via `pip install requests`
 
 ### Configuration
-Set the following environment variables in your `.bashrc` or equivalent to run `demo.py`:
+Set the following environment variables in your `.bashrc` or equivalent to run `web/demo.py`:
 
 ```bash
 export QB_USER_ID=1
 export QB_API_KEY='secret-here'
 ```
+
+The demo answerer goes through all the questions and answers based on fixed strings (this is pretty dumb, but hopefully gives an idea of how to write your own answerer!).  For example, whenever it sees "author" it answers "Marcel Proust", whenever it sees "fancy" it answers "Iggy Azalea", and its default answer at the end of a question is "Chinua Achebe".
+
+It first gets all of the questions it can answer from the `web/client.py` API.  
+
+```
+        all_questions = self._server.get_all_questions()
+        print(all_questions)
+	for qdict in all_questions:
+            start = time.time()
+            next_q = int(qdict['id'])
+            qlen = int(qdict['word_count'])
+```
+
+
 
 ### JSON Documentation
 The Quiz Bowl API is documented via a [Swagger JSON spec](http://swagger.io/). You can find the specification files in `swagger.yaml` and `swagger.json`. This allows you to browse our API documentation online by loading `docs/index.html` in your browser. You can also visit [the swagger ui demo](http://petstore.swagger.io/) and replace the url with `https://raw.githubusercontent.com/Pinafore/qb-api/master/swagger.json`. Finally, you can generate a client in one of many languages by:
