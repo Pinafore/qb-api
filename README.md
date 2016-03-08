@@ -39,12 +39,12 @@ The demo answerer goes through all the questions and answers based on fixed stri
 It first gets all of the questions it can answer from the `web/client.py` API.  
 
 ```
-        all_questions = self._server.get_all_questions()
-        print(all_questions)
-	for qdict in all_questions:
-            start = time.time()
-            next_q = int(qdict['id'])
-            qlen = int(qdict['word_count'])
+all_questions = self._server.get_all_questions()
+print(str(all_questions)[:70] + "...")
+for qdict in all_questions:
+     start = time.time()
+     next_q = int(qdict['id'])
+     qlen = int(qdict['word_count'])
 ```
 
 
