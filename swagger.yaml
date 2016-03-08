@@ -21,7 +21,7 @@ paths:
       description: |
         List of question ids and word counts for each
       tags:
-        - Questions
+        - Quiz Bowl
       responses:
         200:
           description: A dictionary containing list of questions
@@ -50,7 +50,7 @@ paths:
           required: true
           type: number
       tags:
-        - Questions
+        - Quiz Bowl
       responses:
         200:
           description: Nothing if succesful
@@ -82,7 +82,7 @@ paths:
           type: string
           description: Answer to question
       tags:
-        - Questions
+        - Quiz Bowl
       responses:
         200:
           description: Nothing on success
@@ -94,6 +94,8 @@ paths:
     get:
       summary: Count of questions
       description: Count of questions
+      tags:
+        - Quiz Bowl
       responses:
         200:
           description: OK
@@ -109,12 +111,14 @@ paths:
           description: Question id
           required: true
           type: number
+      tags:
+        - Quiz Bowl
       responses:
         200:
           description: OK
           schema:
             $ref: '#/definitions/LengthResponse'
-
+    
 
 definitions:
   QuestionResponse:
