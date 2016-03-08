@@ -57,7 +57,7 @@ self._server.get_question_length(next_q)
           ....
 ```
 
-#### Folds
+### Folds
 
 *IMPORTANT*: The sample code provided answers all available 'dev' questions.  You can answer 'dev' questions as many times as you like.  However, 'test' questions can only be answered once.  So be very careful when querying the text of test questions and providing your answers.
 
