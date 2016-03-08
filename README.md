@@ -25,7 +25,7 @@ export QB_API_KEY='secret-here'
 ```
 
 ### JSON Documentation
-The Quiz Bowl API is documented via a [Swagger JSON spec](http://swagger.io/). You can find the specification files in `swagger.yaml` and `swagger.json`. This allows you to browse our API documentation online by loading `docs/index.html` in your browser. You can also visit [the swagger ui demo](http://petstore.swagger.io/) and replace the url with `https://github.com/Pinafore/qb-api/blob/master/docs/index.html`. Finally, you can generate a client in one of many languages by:
+The Quiz Bowl API is documented via a [Swagger JSON spec](http://swagger.io/). You can find the specification files in `swagger.yaml` and `swagger.json`. This allows you to browse our API documentation online by loading `docs/index.html` in your browser. You can also visit [the swagger ui demo](http://petstore.swagger.io/) and replace the url with `https://raw.githubusercontent.com/Pinafore/qb-api/master/swagger.json`. Finally, you can generate a client in one of many languages by:
 
 1. Navigating to [editor.swagger.io](http://editor.swagger.io/#/)
 2. Uploading the specification file by clicking "file" then "import file" then "Generate Client" and choose your language
