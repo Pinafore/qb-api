@@ -13,14 +13,14 @@ class StringAnswerer:
     """
 
     def __init__(self, server, patterns={"watergate": "Richard Nixon",
-                                               "republican": "Donald Trump",
-                                               "people": "Maori people",
-                                               "found": "Sri Lanka",
-                                               "this man": "Erwin Rommel",
-                                               "author": "Marcel Proust",
-                                               "organ": "Spleen",
-                                               "opera": "Porgy and Bess",
-                                               "fancy": "Iggy Azalea"}):
+                                         "republican": "Donald Trump",
+                                         "people": "Maori people",
+                                         "found": "Sri Lanka",
+                                         "this man": "Erwin Rommel",
+                                         "author": "Marcel Proust",
+                                         "organ": "Spleen",
+                                         "opera": "Porgy and Bess",
+                                         "fancy": "Iggy Azalea"}):
         self._server = server
         self._patterns = patterns
         self._buffer = []
@@ -32,14 +32,16 @@ class StringAnswerer:
         """
 
         answer = ""
-        for qdict in self._server.get_all_questions():
+        all_questions = self._server.get_all_questions()
+        print(str(all_questions)[:70] + "...")
+        for qdict in all_questions:
             start = time.time()
             next_q = int(qdict['id'])
             qlen = int(qdict['word_count'])
             current_question = ""
             qlen = self._server.get_question_length(next_q)
-            print("Currently answering question %i, which has %i tokens" % \
-                (next_q, qlen))
+            print("Answering question %i, which has %i tokens" %
+                  (next_q, qlen))
             for ii in range(qlen):
                 curr_word_info = self._server.get_word(next_q, ii)
                 curr_word = curr_word_info['text']
@@ -49,14 +51,16 @@ class StringAnswerer:
                                         for x in self._patterns):
                     answer = [self._patterns[x] for x in self._patterns if
                               x in current_question.lower()][0]
-                    print("\nANSWERING! %i %i (%s)" % (next_q, ii, answer))
+                    print("\nANSWERING! %i %i (%s, %f sec)" %
+                          (next_q, ii, answer, time.time() - start))
                     self._server.submit_answer(next_q, answer)
                     break
                 sys.stdout.flush()
 
             # Submit some answer if the question is unanswered by the end
             if answer == "":
-                print("\nANSWERING! %i %i (%s)" % (next_q, qlen, "Chinua Achebe"))
+                print("\nANSWERING! %i %i (%s)" %
+                      (next_q, qlen, "Chinua Achebe"))
                 self._server.submit_answer(next_q, "Chinua Achebe")
 
             answer = ""
