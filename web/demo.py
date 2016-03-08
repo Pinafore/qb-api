@@ -1,11 +1,11 @@
 from client import QbApi
-import sys
+import sys, time
 import os
 
-# mohit's credentials (for debugging)
 user_id = os.environ.get('QB_USER_ID', 1)
 api_key = os.environ.get('QB_API_KEY', 'key')
 qb_host = os.environ.get("QB_HOST", 'http://qb.boydgraber.org')
+
 
 class StringAnswerer:
     """
@@ -33,6 +33,7 @@ class StringAnswerer:
 
         answer = ""
         for qdict in self._server.get_all_questions():
+            start = time.time()
             next_q = int(qdict['id'])
             qlen = int(qdict['word_count'])
             current_question = ""
@@ -43,15 +44,15 @@ class StringAnswerer:
                 curr_word_info = self._server.get_word(next_q, ii)
                 curr_word = curr_word_info['text']
                 print(curr_word, end=' ')
-                sys.stdout.flush()
                 current_question += ' ' + curr_word
                 if answer == "" and any(x in current_question.lower()
                                         for x in self._patterns):
                     answer = [self._patterns[x] for x in self._patterns if
                               x in current_question.lower()][0]
                     print("\nANSWERING! %i %i (%s)" % (next_q, ii, answer))
-                    print(next_q, current_question, answer)
                     self._server.submit_answer(next_q, answer)
+                    break
+                sys.stdout.flush()
 
             # Submit some answer if the question is unanswered by the end
             if answer == "":
@@ -59,6 +60,7 @@ class StringAnswerer:
                 self._server.submit_answer(next_q, "Chinua Achebe")
 
             answer = ""
+            print("took %f seconds\n" % (time.time() - start, ))
 
 if __name__ == "__main__":
 
