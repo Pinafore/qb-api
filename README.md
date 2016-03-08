@@ -36,8 +36,7 @@ export QB_API_KEY='secret-here'
 
 The demo answerer goes through all the questions and answers based on fixed strings (this is pretty dumb, but hopefully gives an idea of how to write your own answerer!).  For example, whenever it sees "author" it answers "Marcel Proust", whenever it sees "fancy" it answers "Iggy Azalea", and its default answer at the end of a question is "Chinua Achebe".
 
-It first gets all of the questions it can answer from the `web/client.py` API.  
-
+It first gets all of the questions it can answer from the `web/client.py` API:
 ```
 all_questions = self._server.get_all_questions()
 print(str(all_questions)[:70] + "...")
@@ -46,8 +45,17 @@ for qdict in all_questions:
      next_q = int(qdict['id'])
      qlen = int(qdict['word_count'])
 ```
+which returns a list of dictionaries (each dictionary is a question JSON):
+```
+[{'word_count': 90, 'id': 1}, {'word_count': 87, 'id': 2}, {'word_count': 96, 'id': 3}, {'word_count': 81, 'id': 4}, {'word_count': 90, 'id': 5}, {'word_count': 88, 'id': 6}, {'word_count': 88, 'id': 7}, {'word_count': 84, 'id': 8}, {'word_count': 98, 'id': 9}, {'word_count': 92, 'id': 10}, {'word_count': 88, 'id': 11}, {'word_count': 100, 'id': 12}, {'word_count': 82, 'id': 13}, {'word_count': 97, 'id': 14}, {'word_count': 92, 'id': 15}, {'word_count': 101, 'id': 16}, {'word_count': 99, 'id': 17}, {'word_count': 103, 'id': 18}, {'word_count': 93, 'id': 19}, {'word_count': 96, 'id': 20}, {'word_count': 97, 'id': 21}, {'word_count': 91, 'id': 22}, {'word_count': 80, 'id': 23}, {'word_count': 93, 'id': 24}, {'word_count': 89, 'id': 25}, {'word_count': 89, 'id': 26}, {'word_count': 106, 'id': 27}, {'word_count': 94, 'id': 28}, {'word_count': 102, 'id': 29}, {'word_count': 100, 'id': 30}, {'word_count': 100, 'id': 31}, {'word_count': 95, 'id': 32}, {'word_count': 101, 'id': 33}, {'word_count': 97, 'id': 34}, {'word_count': 96, 'id': 35}, {'word_count': 93, 'id': 36}, {'word_count': 95, 'id': 37}, {'word_count': 98, 'id': 38}, {'word_count': 97, 'id': 39}, {'word_count': 86, 'id': 40}, {'word_count': 88, 'id': 41}, {'word_count': 98, 'id': 42}, {'word_count': 96, 'id': 43}, {'word_count': 91, 'id': 44}, {'word_count': 90, 'id': 45}]
+```
 
-
+It then iterates over the questions one word at a time:
+```
+self._server.get_question_length(next_q)
+     for ii in range(qlen):
+          ....
+```
 
 ### JSON Documentation
 The Quiz Bowl API is documented via a [Swagger JSON spec](http://swagger.io/). You can find the specification files in `swagger.yaml` and `swagger.json`. This allows you to browse our API documentation online by loading `docs/index.html` in your browser. You can also visit [the swagger ui demo](http://petstore.swagger.io/) and replace the url with `https://raw.githubusercontent.com/Pinafore/qb-api/master/swagger.json`. Finally, you can generate a client in one of many languages by:
