@@ -40,14 +40,14 @@ It first gets all of the questions it can answer from the `web/client.py` API:
 ```
 all_questions = self._server.get_all_questions()
 print(str(all_questions)[:70] + "...")
-for qdict in all_questions:
+for qdict in [x for x in all_questions if x['fold'] == 'dev']:
      start = time.time()
      next_q = int(qdict['id'])
      qlen = int(qdict['word_count'])
 ```
 which returns a list of dictionaries (each dictionary is a question JSON):
 ```
-[{'word_count': 90, 'id': 1}, {'word_count': 87, 'id': 2}, {'word_count': 96, 'id': 3}, {'word_count': 81, 'id': 4}, {'word_count': 90, 'id': 5}, {'word_count': 88, 'id': 6}, {'word_count': 88, 'id': 7}, {'word_count': 84, 'id': 8}, {'word_count': 98, 'id': 9}, {'word_count': 92, 'id': 10}, {'word_count': 88, 'id': 11}, {'word_count': 100, 'id': 12}, {'word_count': 82, 'id': 13}, {'word_count': 97, 'id': 14}, {'word_count': 92, 'id': 15}, {'word_count': 101, 'id': 16}, {'word_count': 99, 'id': 17}, {'word_count': 103, 'id': 18}, {'word_count': 93, 'id': 19}, {'word_count': 96, 'id': 20}, {'word_count': 97, 'id': 21}, {'word_count': 91, 'id': 22}, {'word_count': 80, 'id': 23}, {'word_count': 93, 'id': 24}, {'word_count': 89, 'id': 25}, {'word_count': 89, 'id': 26}, {'word_count': 106, 'id': 27}, {'word_count': 94, 'id': 28}, {'word_count': 102, 'id': 29}, {'word_count': 100, 'id': 30}, {'word_count': 100, 'id': 31}, {'word_count': 95, 'id': 32}, {'word_count': 101, 'id': 33}, {'word_count': 97, 'id': 34}, {'word_count': 96, 'id': 35}, {'word_count': 93, 'id': 36}, {'word_count': 95, 'id': 37}, {'word_count': 98, 'id': 38}, {'word_count': 97, 'id': 39}, {'word_count': 86, 'id': 40}, {'word_count': 88, 'id': 41}, {'word_count': 98, 'id': 42}, {'word_count': 96, 'id': 43}, {'word_count': 91, 'id': 44}, {'word_count': 90, 'id': 45}]
+[{'word_count': 90, 'id': 1, 'fold': 'dev'}, {'word_count': 87, 'id': 2, 'fold': 'dev'}, {'word_count': 96, 'id': 3, 'fold': 'dev'}, {'word_count': 81, 'id': 4, 'fold': 'dev'}, {'word_count': 90, 'id': 5, 'fold': 'dev'}, {'word_count': 88, 'id': 6, 'fold': 'dev'}, {'word_count': 88, 'id': 7, 'fold': 'dev'}, {'word_count': 84, 'id': 8, 'fold': 'dev'}, {'word_count': 98, 'id': 9, 'fold': 'dev'}, {'word_count': 92, 'id': 10, 'fold': 'dev'}, {'word_count': 88, 'id': 11, 'fold': 'dev'}, {'word_count': 100, 'id': 12, 'fold': 'dev'}, {'word_count': 82, 'id': 13, 'fold': 'dev'}, {'word_count': 97, 'id': 14, 'fold': 'dev'}, {'word_count': 92, 'id': 15, 'fold': 'dev'}, {'word_count': 101, 'id': 16, 'fold': 'dev'}, {'word_count': 99, 'id': 17, 'fold': 'dev'}, {'word_count': 103, 'id': 18, 'fold': 'dev'}, {'word_count': 93, 'id': 19, 'fold': 'dev'}, {'word_count': 96, 'id': 20, 'fold': 'dev'}, {'word_count': 97, 'id': 21, 'fold': 'dev'}, {'word_count': 91, 'id': 22, 'fold': 'dev'}, {'word_count': 80, 'id': 23, 'fold': 'dev'}, {'word_count': 93, 'id': 24, 'fold': 'dev'}, {'word_count': 89, 'id': 25, 'fold': 'dev'}, {'word_count': 89, 'id': 26, 'fold': 'dev'}, {'word_count': 106, 'id': 27, 'fold': 'dev'}, {'word_count': 94, 'id': 28, 'fold': 'dev'}, {'word_count': 102, 'id': 29, 'fold': 'dev'}, {'word_count': 100, 'id': 30, 'fold': 'dev'}, {'word_count': 100, 'id': 31, 'fold': 'dev'}, {'word_count': 95, 'id': 32, 'fold': 'dev'}, {'word_count': 101, 'id': 33, 'fold': 'dev'}, {'word_count': 97, 'id': 34, 'fold': 'dev'}, {'word_count': 96, 'id': 35, 'fold': 'dev'}, {'word_count': 93, 'id': 36, 'fold': 'dev'}, {'word_count': 95, 'id': 37, 'fold': 'dev'}, {'word_count': 98, 'id': 38, 'fold': 'dev'}, {'word_count': 97, 'id': 39, 'fold': 'dev'}, {'word_count': 86, 'id': 40, 'fold': 'dev'}, {'word_count': 88, 'id': 41, 'fold': 'dev'}, {'word_count': 98, 'id': 42, 'fold': 'dev'}, {'word_count': 96, 'id': 43, 'fold': 'dev'}, {'word_count': 91, 'id': 44, 'fold': 'dev'}, {'word_count': 90, 'id': 45, 'fold': 'dev'}]
 ```
 
 It then iterates over the questions one word at a time:
@@ -56,6 +56,10 @@ self._server.get_question_length(next_q)
      for ii in range(qlen):
           ....
 ```
+
+#### Folds
+
+*IMPORTANT*: The sample code provided answers all available 'dev' questions.  You can answer 'dev' questions as many times as you like.  However, 'test' questions can only be answered once.  So be very careful when querying the text of test questions and providing your answers.
 
 ### JSON Documentation
 The Quiz Bowl API is documented via a [Swagger JSON spec](http://swagger.io/). You can view a very nice version of the documentation via the [Swagger UI Website](http://petstore.swagger.io/?url=https://raw.githubusercontent.com/Pinafore/qb-api/master/swagger.json) (Note: the "try it now" feature doesn't work due to XSS attack protection). Alternatively you can load a "light" version of the docs by opening `docs/index.html` in a web browser. The specification files are in `swagger.yaml` and `swagger.json`. Finally, you can generate a client in one of many languages by:
