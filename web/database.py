@@ -165,7 +165,7 @@ class QuizBowl:
     @staticmethod
     def list_questions():
         questions = Question.query.all()
-        question_list = map(lambda q: {'id': q.id, 'word_count': len(q.words)}, questions)
+        question_list = map(lambda q: {'id': q.id, 'word_count': len(q.words), 'fold': q.fold}, questions)
         return {'questions': list(question_list)}
 
 
@@ -175,7 +175,7 @@ def load_questions(filename='data/demo.csv'):
         questions = DictReader(f)
         for q in questions:
             q_id = int(q['id'])
-            question = Question(qb_id=q_id, answer=q['answer'], fold='dev')
+            question = Question(qb_id=q_id, answer=q['answer'], fold=d['fold'])
             for i, word in enumerate(q['text'].split()):
                 question.words.append(Word(text=word, position=i))
             db.session.add(question)
