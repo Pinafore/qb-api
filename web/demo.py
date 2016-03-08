@@ -1,9 +1,11 @@
 from client import QbApi
 import sys
+import os
 
 # mohit's credentials (for debugging)
-user_id = 9
-api_key = 'jmMSHNOrpBnRbxppVXmBgCwwepLbIYfmSWkDglIPHNpnajEOheKfEYzgKaoJSMon'
+user_id = os.environ.get('QB_USER_ID', 1)
+api_key = os.environ.get('QB_API_KEY', 'key')
+qb_host = os.environ.get("QB_HOST", 'http://qb.boydgraber.org')
 
 class StringAnswerer:
     """
@@ -50,7 +52,7 @@ class StringAnswerer:
                     print("\nANSWERING! %i %i (%s)" % (next_q, ii, answer))
                     print(next_q, current_question, answer)
                     self._server.submit_answer(next_q, answer)
- 
+
             # Submit some answer if the question is unanswered by the end
             if answer == "":
                 print("\nANSWERING! %i %i (%s)" % (next_q, qlen, "Chinua Achebe"))
@@ -60,7 +62,7 @@ class StringAnswerer:
 
 if __name__ == "__main__":
 
-    base_url = 'http://qb.boydgraber.org/qb-api/v1'
+    base_url = qb_host + '/qb-api/v1'
     server = QbApi(base_url, user_id, api_key)
     sa = StringAnswerer(server)
     sa.answer_questions()

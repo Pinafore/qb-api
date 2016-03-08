@@ -1,0 +1,11 @@
+version: '2'
+services:
+  test:
+    build: ./web
+    env_file: .env
+    environment:
+      AUTHORIZATION_ENABLED: '0'
+    command: bash test.sh
+    external_links:
+      - qbapi_web_1
+      - qbapi_postgres_1:postgres

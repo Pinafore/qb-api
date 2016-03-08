@@ -8,3 +8,4 @@ sqlalchemy
 flask-sqlalchemy
 nose
 psycopg2
+click

@@ -1,36 +1,68 @@
-# qb-api
+# Quiz Bowl API
 
-A server-side application to collect question answering data incrementally.  The basic overview of interactions are:
+Using the code in this repository you can:
+1. Query our Quiz Bowl API server run at [qb.boydgraber.org](qb.boydgraber.org)
+2. Run your on Quiz Bowl API server
 
-1. Get a user ID
-2. Client connects to the server and gets a question ID
-3. For each question, client requests as many words as it wants (by word id) and then submits an answer
+## Query Quiz Bowl API Server
+The main objective of querying the Quiz Bowl API is to evaluate the performance of your system. To do so, you must follow these steps to install the required software, acquire and API key, and test your system.
 
-## Authentication and User IDs
+### Create an Account and API Key
+Visit [qb.boydgraber.org/register](qb.boydgraber.org/register). The page will redirect you to Google for OAuth authentication. We only require a valid email. The page will then redirect you to a page that contains a json response with your email, user id, and API key. Be sure to save this information, but if you lose it you can visit the register link again and the website will redisplay your credentials.
 
-Users authenticate to this server with their Google account using OAuth 2.0.
+### Required Software
+The QB API uses JSON for all communication which means it interops with any user language. However, we have included a python client implementation along with a demonstration of querying the server in `client.py` and `demo.py` respectively. Required software is:
 
-## Prereqs
-To run the QB API, you can do so using Docker or vanilla python. We suggest using vanilla python for
-development and Docker for production deployment.
+1. Python 3
+2. `requests` package installable via `pip install requests`
 
-### Python Only
+### Configuration
+Set the following environment variables in your `.bashrc` or equivalent to run `demo.py`:
 
-```
-cd web
-pip install -r requirements.txt
-python3 api.py
-```
-
-### Docker
-We assume you have `docker` and `docker-compose` installed and running
-
-```
-docker-compose build
-docker-compose up
+```bash
+export QB_USER_ID=1
+export QB_API_KEY='secret-here'
 ```
 
-## Configuration
+### JSON Documentation
+The Quiz Bowl API is documented via a [Swagger JSON spec](http://swagger.io/). You can find the specification files in `swagger.yaml` and `swagger.json`. This allows you to browse our API documentation online by loading `docs/index.html` in your browser. You can also visit [the swagger ui demo](http://petstore.swagger.io/) and replace the url with `https://github.com/Pinafore/qb-api/blob/master/docs/index.html`. Finally, you can generate a client in one of many languages by:
+
+1. Navigating to [editor.swagger.io](http://editor.swagger.io/#/)
+2. Uploading the specification file by clicking "file" then "import file" then "Generate Client" and choose your language
+
+## Run Quiz Bowl API Server
+To run a standalone instance of the Quiz Bowl API server is very easy using [Docker](https://www.docker.com/). First, you will need to install [Docker Engine](https://docs.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install/). After doing so and starting a Docker Machine, run the following commands to launch the server:
+
+```bash
+docker-compose -f docker-compose.yml build
+docker-compose -f docker-compose.yml up
+```
+
+This will run the server in blocking mode, you can run it in the background with `docker-compose up -d`. To test that it works you can run
+```bash
+docker-compose -f docker-compose.test.yml build
+docker-compose -f docker-compose.test.yml up
+```
+
+You should see `demo.py` running and answering questions. Note, that this will leave the database in a "dirty" state. You can bring the database to a clean state by having the server running, then running:
+
+```bash
+docker exec -it qbapi_web_1 bash
+python
+```
+
+Then in the python session
+
+```python
+>>> import app
+>>> import database
+>>> app.db.drop_all()
+>>> app.db.create_all()
+>>> database.load_questions()
+```
+
+### Configuration
+The instructions that follow are for running an instance with oauth. The documentation may not be complete
 
 * A `client_secrets.json` file must be created with the following contents:
 ```json
@@ -50,58 +82,3 @@ docker-compose up
 ```python
 SECRET_KEY='mysecretkey'
 ```
-
-Running a Server
-====
-
-To start an instance of the server locally:
-
-
-```python api.py```
-
-Note: If you do not wish to set up OAuth, you can just create the file users.csv with the contents:
-
-```
-<email>,<key>
-```
-
-Where `<key>` is any integer. Then, use `id=<key>` when making calls to the server.
-
-API Calls
-===
-
-Currently this API has just two calls that can be made:
-
-* `/qb-api/question/<questionId>/<wordId>`
-    * POST
-    * Request a word of a question
-    * Required fields:
-        * id: A valid user id (String)
-    * Updates the number of words requested for this question to be wordId if it is not higher already already.
-        * For example, if requests for words 0, 5, 1 and 1 of a particular question were sent, the user record of used words would be 0, 5, 5 and 5 respectively.
-
-    * Returns: Word ` # <wordId>` (indexed from 0) of question `# <questionId>`
-    * Example usage
-    ```sh
-        $ curl -X POST http://127.0.0.1:5000/qb-api/question/0/0 -d 'id=ident'
-        {"word":"hello"}
-    ```
-
-* `/qb-api/answer/<questionId>`
-    * POST
-    * Submit an answer for question `# <questionId>`
-    * Required fields: 
-        * id: A valid user id (String)
-        * answer: The answer for a question (String)
-    * May only be called once per user per question
-    * Example usage:
-    ```sh
-        $ curl -X POST http://127.0.0.1:5000/qb-api/answer/0 -d 'id=0' -d 'answer=earth'
-        {"score"=\<some score>}
-    ```
-
-* `/qb-api/info/next/<user_id>`
- 
-Returns the next question ID that the user has yet to answer.
-
-Note about answers: Answers must be the title of a wikipedia page. Answers are case sensitive.

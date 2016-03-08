@@ -1,0 +1,225 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Quiz Bowl API",
+        "description": "API for Quiz Bowl workshop",
+        "version": "1.0.0"
+    },
+    "host": "qb.boydgraber.org",
+    "schemes": [
+        "http"
+    ],
+    "basePath": "/qb-api/v1",
+    "produces": [
+        "application/json"
+    ],
+    "paths": {
+        "/questions": {
+            "get": {
+                "summary": "List of questions",
+                "description": "List of question ids and word counts for each\n",
+                "tags": [
+                    "Questions"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "A dictionary containing list of questions",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/QuestionResponse"
+                            }
+                        }
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/question/{question_id}/{position}": {
+            "post": {
+                "summary": "Questions",
+                "description": "Get the requested word for the question\n",
+                "parameters": [
+                    {
+                        "name": "question_id",
+                        "in": "path",
+                        "description": "id of question",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "position",
+                        "in": "path",
+                        "description": "position of word",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Nothing if succesful"
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/answer/{question_id}": {
+            "post": {
+                "summary": "Submit an answer for a question",
+                "description": "Answer a question with an answer",
+                "parameters": [
+                    {
+                        "name": "question_id",
+                        "in": "path",
+                        "description": "Answer to question",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "name": "user_id",
+                        "in": "formData",
+                        "description": "user id",
+                        "required": true,
+                        "type": "number"
+                    },
+                    {
+                        "name": "api_key",
+                        "in": "formData",
+                        "type": "string",
+                        "description": "api key for user"
+                    },
+                    {
+                        "name": "guess",
+                        "in": "formData",
+                        "type": "string",
+                        "description": "Answer to question"
+                    }
+                ],
+                "tags": [
+                    "Questions"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Nothing on success"
+                    },
+                    "default": {
+                        "description": "Unexpected error",
+                        "schema": {
+                            "$ref": "#/definitions/Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/info/count": {
+            "get": {
+                "summary": "Count of questions",
+                "description": "Count of questions",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/CountResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/info/length/{question_id}": {
+            "get": {
+                "summary": "Count of questions",
+                "description": "Count of questions",
+                "parameters": [
+                    {
+                        "name": "question_id",
+                        "in": "path",
+                        "description": "Question id",
+                        "required": true,
+                        "type": "number"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/LengthResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "QuestionResponse": {
+            "type": "object",
+            "properties": {
+                "questions": {
+                    "type": "array",
+                    "description": "list of questions",
+                    "items": {
+                        "$ref": "#/definitions/QuestionSummary"
+                    }
+                }
+            }
+        },
+        "QuestionSummary": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "number",
+                    "description": "id of question for future queries"
+                },
+                "word_count": {
+                    "type": "number",
+                    "description": "Number of words in this question"
+                }
+            }
+        },
+        "CountResponse": {
+            "type": "object",
+            "properties": {
+                "count": {
+                    "type": "number",
+                    "description": "Count of number of quiz bowl questions"
+                }
+            }
+        },
+        "LengthResponse": {
+            "type": "object",
+            "properties": {
+                "length": {
+                    "type": "number",
+                    "description": "Number of words in question"
+                }
+            }
+        },
+        "Error": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "fields": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
