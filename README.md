@@ -1,6 +1,7 @@
 # Quiz Bowl API
 
 Using the code in this repository you can:
+
 1. Query our Quiz Bowl API server run at [qb.boydgraber.org](qb.boydgraber.org)
 2. Run your on Quiz Bowl API server
 
