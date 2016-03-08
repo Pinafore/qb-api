@@ -14,7 +14,7 @@ Visit [http://qb.boydgraber.org/register](qb.boydgraber.org/register). The page 
 You should get something that looks like:
 ```
 {
-"api_key": "IgotupinthenightTookthesilverTookmyflight",
+"api_key": "secret-here",
 "email": "jvaljean@gmail.com",
 "id": 24601
 }
