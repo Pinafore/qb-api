@@ -21,7 +21,7 @@ You should get something that looks like:
 ```
 
 ### Required Software
-The QB API uses JSON for all communication which means it interops with any user language. However, we have included a python client implementation along with a demonstration of querying the server in `client.py` and `demo.py` respectively. Required software is:
+The QB API uses JSON for all communication which means it interops with any user language. However, we have included a python client implementation along with a demonstration of querying the server in `web/client.py` and `web/demo.py` respectively. Required software is:
 
 1. Python 3
 2. `requests` package installable via `pip install requests`
