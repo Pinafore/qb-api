@@ -63,6 +63,13 @@ The Quiz Bowl API is documented via a [Swagger JSON spec](http://swagger.io/). Y
 1. Navigating to [editor.swagger.io](http://editor.swagger.io/#/)
 2. Uploading the specification file by clicking "file" then "import file" then "Generate Client" and choose your language
 
+### Raw CURL Commands
+
+The Swagger documentation (above) can be used to generate CURL commands (or other frameworks).  For example, you can get the raw JSON of all questions to answer using:
+```
+curl -X GET --header 'Accept: application/json' 'http:/qb.boydgraber.org/qb-api/v1/questions?api_key=secret-here'
+```
+
 ## Run Quiz Bowl API Server
 To run a standalone instance of the Quiz Bowl API server is very easy using [Docker](https://www.docker.com/). First, you will need to install [Docker Engine](https://docs.docker.com/) and [Docker Compose](https://docs.docker.com/compose/install/). After doing so and starting a Docker Machine, run the following commands to launch the server:
 
