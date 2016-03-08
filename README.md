@@ -9,7 +9,7 @@ Using the code in this repository you can:
 The main objective of querying the Quiz Bowl API is to evaluate the performance of your system. To do so, you must follow these steps to install the required software, acquire and API key, and test your system.
 
 ### Create an Account and API Key
-Visit [qb.boydgraber.org/register](qb.boydgraber.org/register). The page will redirect you to Google for OAuth authentication. We only require a valid email. The page will then redirect you to a page that contains a json response with your email, user id, and API key. Be sure to save this information, but if you lose it you can visit the register link again and the website will redisplay your credentials.
+Visit [http://qb.boydgraber.org/register](qb.boydgraber.org/register). The page will redirect you to Google for OAuth authentication. We only require a valid email. The page will then redirect you to a page that contains a json response with your email, user id, and API key. Be sure to save this information, but if you lose it you can visit the register link again and the website will redisplay your credentials.
 
 ### Required Software
 The QB API uses JSON for all communication which means it interops with any user language. However, we have included a python client implementation along with a demonstration of querying the server in `client.py` and `demo.py` respectively. Required software is:
