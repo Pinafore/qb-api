@@ -45,7 +45,8 @@ def register():
 def leaderboard():
     scores = QuizBowl.get_scores()
     sorted_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
-    return flask.render_template('leaderboard.html', scores=sorted_scores)
+    num_questions = QuizBowl.num_questions()
+    return flask.render_template('leaderboard.html', scores=sorted_scores, num_questions=num_questions)
 
 
 @server.route('/qb-api/v1/questions')
@@ -113,9 +114,8 @@ class Answer(Resource):
         guess = request.form['guess']
         check_auth(user_id, api_key)
         answer, correct = QuizBowl.submit_guess(user_id, question_id, guess)
-        num_questions = QuizBowl.num_questions()
 
-        return jsonify({'correct': correct, 'answer': answer, 'num_questions:': num_questions})
+        return jsonify({'correct': correct, 'answer': answer})
 
 
 def create_server():
