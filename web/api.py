@@ -7,6 +7,7 @@ from flask import jsonify, request
 from flask_restful import Resource, Api, abort, reqparse
 
 from oauth2client import client
+from operator import itemgetter
 from apiclient import discovery
 
 from database import QuizBowl
@@ -39,6 +40,12 @@ def register():
         api_key = generate_api_key()
         user = QuizBowl.create_user(email, api_key)
         return jsonify(**user)
+
+@server.route('/')
+def leaderboard():
+    scores = QuizBowl.get_scores()
+    sorted_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
+    return flask.render_template('leaderboard.html', scores=sorted_scores)
 
 
 @server.route('/qb-api/v1/questions')

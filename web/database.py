@@ -1,3 +1,4 @@
+from collections import defaultdict
 from datetime import datetime
 from csv import DictReader
 
@@ -168,6 +169,14 @@ class QuizBowl:
         question_list = map(lambda q: {'id': q.id, 'word_count': len(q.words), 'fold': q.fold}, questions)
         return {'questions': list(question_list)}
 
+    @staticmethod
+    def get_scores():
+        scores = defaultdict(int)
+        for status in QuestionStatus.query.all():
+            scores[status.user_id] += status.correct
+
+        email_scores = {user.email: scores[user.id] for user in User.query.all()}
+        return email_scores
 
 def load_questions(filename='data/demo.csv'):
     Question.query.delete()

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <div class="">
+      <h1>Leaderboard</h1>
+  </div>
+  <table class="table table-bordered">
+    <tr>
+      <th>Rank</th>
+      <th>User</th>
+      <th>Questions Correct</th>
+    </tr>
+    <tbody>
+      {% for user, score in scores %}
+        <tr>
+          <td>{{ loop.index }}</td>
+          <td>{{ user }}</td>
+          <td>{{ score }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+{% endblock %}
