@@ -113,8 +113,9 @@ class Answer(Resource):
         guess = request.form['guess']
         check_auth(user_id, api_key)
         answer, correct = QuizBowl.submit_guess(user_id, question_id, guess)
+        num_questions = QuizBowl.num_questions()
 
-        return jsonify({'correct': correct, 'answer': answer})
+        return jsonify({'correct': correct, 'answer': answer, 'num_questions:': num_questions})
 
 
 def create_server():
