@@ -172,8 +172,8 @@ class QuizBowl:
     @staticmethod
     def get_scores():
         scores = defaultdict(int)
-        for status in QuestionStatus.query.all():
-            scores[status.user_id] += status.correct
+        for result in Result.query.all():
+            scores[result.user_id] += result.correct
 
         email_scores = {user.email: scores[user.id] for user in User.query.all()}
         return email_scores
