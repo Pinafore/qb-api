@@ -179,12 +179,11 @@ class QuizBowl:
         return email_scores
 
 def load_questions(filename='data/demo.csv'):
-    Question.query.delete()
     with open(filename) as f:
         questions = DictReader(f)
         for q in questions:
             q_id = int(q['id'])
-            question = Question(qb_id=q_id, answer=q['answer'], fold=d['fold'])
+            question = Question(qb_id=q_id, answer=q['answer'], fold=q['fold'])
             for i, word in enumerate(q['text'].split()):
                 question.words.append(Word(text=word, position=i))
             db.session.add(question)
