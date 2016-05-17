@@ -27,19 +27,10 @@ def alive():
 # (https://developers.google.com/api-client-library/python/auth/web-app)
 @server.route('/register')
 def register():
-    if 'credentials' not in flask.session:
-        return flask.redirect(flask.url_for('oauth2callback'))
-
-    credentials = client.OAuth2Credentials.from_json(flask.session['credentials'])
-    if credentials.access_token_expired:
-        return flask.redirect(flask.url_for('oauth2callback'))
-    else:
-        http_auth = credentials.authorize(httplib2.Http())
-        account_service = discovery.build('oauth2', 'v2', http=http_auth)
-        email = account_service.userinfo().get().execute()['email']
-        api_key = generate_api_key()
-        user = QuizBowl.create_user(email, api_key)
-        return jsonify(**user)
+    email = ''.join(random.choice(string.ascii_lowercase) for _ in range(10))
+    api_key = generate_api_key()
+    user = QuizBowl.create_user(email, api_key)
+    return jsonify(**user)
 
 @server.route('/')
 def leaderboard():
@@ -52,22 +43,6 @@ def leaderboard():
 @server.route('/qb-api/v1/questions')
 def list_questions():
     return jsonify(**QuizBowl.list_questions())
-
-
-@server.route('/oauth2callback')
-def oauth2callback():
-    flow = client.flow_from_clientsecrets('data/client_secrets.json',
-                                          scope='https://www.googleapis.com/auth/userinfo.email',
-                                          redirect_uri=flask.url_for('oauth2callback',
-                                                                     _external=True))
-    if 'code' not in request.args:
-        auth_uri = flow.step1_get_authorize_url()
-        return flask.redirect(auth_uri)
-    else:
-        auth_code = request.args.get('code')
-        credentials = flow.step2_exchange(auth_code)
-        flask.session['credentials'] = credentials.to_json()
-        return flask.redirect(flask.url_for('register'))
 
 
 def check_auth(user_id, api_key):
