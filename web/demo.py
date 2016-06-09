@@ -34,7 +34,7 @@ class StringAnswerer:
         answer = ""
         all_questions = self._server.get_all_questions()
         print(str(all_questions)[:70] + "...")
-        for qdict in [x for x in all_questions if x['fold'] == 'dev']:
+        for qdict in [x for x in all_questions if x['fold'] == 'test']:
             start = time.time()
             next_q = int(qdict['id'])
             qlen = int(qdict['word_count'])

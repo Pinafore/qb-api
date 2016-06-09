@@ -170,6 +170,14 @@ class QuizBowl:
         return {'questions': list(question_list)}
 
     @staticmethod
+    def get_buzzes():
+        buzzes = {}
+        for result in Result.query.all():
+            val = (result.position, result.guess)
+            buzzes[(result.user_id, result.question_id)] = val
+        return buzzes
+
+    @staticmethod
     def get_scores():
         scores = defaultdict(int)
         for result in Result.query.all():
