@@ -4,7 +4,7 @@ import os
 
 user_id = os.environ.get('QB_USER_ID', 1)
 api_key = os.environ.get('QB_API_KEY', 'key')
-qb_host = os.environ.get("QB_HOST", 'http://qb.boydgraber.org')
+qb_host = os.environ.get("QB_HOST", 'http://qb.entilzha.io')
 
 
 class StringAnswerer:
