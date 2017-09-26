@@ -126,3 +126,44 @@ The instructions that follow are for running an instance with oauth. The documen
 ```python
 SECRET_KEY='mysecretkey'
 ```
+
+## Example System Using the API
+
+We provide an example system in `web/es_guesser` that is composed of
+[ElasticSearch](https://www.elastic.co/products/elasticsearch) as guesser, and
+a very simple threshold based buzzer. This system built on a simplified
+version of [Qanta](https://github.com/Pinafore/qb).
+
+### Dependencies
+First, install and run ElasticSearch:
+
+```
+$ curl -L -O
+$ https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.2.2.tar.gz
+$ tar -xvf elasticsearch-5.2.2.tar.gz
+$ cd elasticsearch-5.2.2
+$ bash bin/elasticsearch
+```
+
+ElasticSearch runs at `localhost:9200`.
+
+Then install ElasticSearch python packages: `elasticsearch` and
+`elasticsearch-dsl`.
+
+```
+$ pip install elasticsearch, elasticsearch-dsl
+```
+
+### Data
+The example code uses `web/es_guesser/non_naqt.db` which can be found
+[here](https://github.com/Pinafore/qb/blob/master/data/internal/non_naqt.db).
+
+### Running the System
+To run the system, simply go to `web/es_guesser` and run `python example.py`.
+It will train the guesser and answer questions using the API.
+
+Unlike neural network systems where the parameters need to be stored after
+training and loaded when testing, ElasticSearch doesn't require saving and
+loading the parameters. The data and other information are stored in index
+files and will be persistent even after ElasticSearch is stopped, so you don't
+need to re-train or load any parameters after restarting it.
