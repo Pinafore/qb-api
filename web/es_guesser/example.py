@@ -9,6 +9,7 @@ from client import QbApi
 user_id = os.environ.get('QB_USER_ID', 1)
 api_key = os.environ.get('QB_API_KEY', 'key')
 qb_host = os.environ.get("QB_HOST", 'http://qb.entilzha.io')
+QB_QUESTION_DB = 'non_naqt.db'
 
 
 class ThresholdBuzzer:
@@ -34,7 +35,10 @@ class ThresholdBuzzer:
 def main():
     # train elasticsearch guesser
     esguesser = ElasticSearchGuesser()
-    qb_dataset = QuizBowlDataset(1, guesser_train=True)
+    qb_dataset = QuizBowlDataset(
+            min_class_examples=1, 
+            guesser_train=True,
+            qb_question_db=QB_QUESTION_DB)
     training_data = qb_dataset.training_data()
     esguesser.train(training_data, rebuild_index=False)
 
