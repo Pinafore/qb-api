@@ -10,6 +10,7 @@ user_id = os.environ.get('QB_USER_ID', 1)
 api_key = os.environ.get('QB_API_KEY', 'key')
 qb_host = os.environ.get("QB_HOST", 'http://qb.entilzha.io')
 
+
 class ThresholdBuzzer:
 
     def __init__(self, threshold=0.3):
@@ -20,14 +21,15 @@ class ThresholdBuzzer:
         scores = [x / s for x in scores]
         return scores
 
-    def buzz(self, guesses):
+    def buzz(self, guesses, position):
         '''Given a sorted list of guesses and their scores, 
         decide buzzing or not.
         '''
         guesses = sorted(guesses, key=lambda x: x[1])[::-1]
         scores = self.normalize([x[1] for x in guesses])
-        buzz = scores[0] > self.threshold
+        buzz = (scores[0] > self.threshold) and (position > 40)
         return buzz
+
 
 def main():
     # train elasticsearch guesser
@@ -62,7 +64,7 @@ def main():
             guesses = sorted(guesses, key=lambda x: x[1])[::-1]
             answer = guesses[0][0]
 
-            if(buzzer.buzz(guesses)):
+            if(buzzer.buzz(guesses, i)):
                 print("\nANSWERING! %i %i (%s, %f sec)" %
                       (next_q, i, answer))
                 server.submit_answer(next_q, answer)
@@ -72,9 +74,9 @@ def main():
         # Submit some answer if the question is unanswered by the end
         if answer == "":
             answer = "Chinua Achebe"
-            print("\nANSWERING! %i %i (%s)" %
-                  (next_q, qlen, answer))
-            server.submit_answer(next_q, answer)
+        print("\nANSWERING! %i %i (%s)" %
+                (next_q, qlen, answer))
+        server.submit_answer(next_q, answer)
 
 
 if __name__ == '__main__':
