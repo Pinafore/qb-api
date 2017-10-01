@@ -12,7 +12,7 @@ import logging
 
 log = logging.getLogger(__name__)
 connections.create_connection(hosts=['localhost'])
-INDEX_NAME = 'simplified_sys'
+INDEX_NAME = 'example_sys'
 
 
 class Answer(DocType):
@@ -69,7 +69,7 @@ class ElasticSearchIndex:
         else:
             qb_field = 'qb_content'
 
-        s = Search(index='qb')[0:max_n_guesses].query(
+        s = Search(index=INDEX_NAME)[0:max_n_guesses].query(
             'multi_match', query=text, fields=[qb_field])
         results = s.execute()
         guess_set = set()
