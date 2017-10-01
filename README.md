@@ -150,7 +150,7 @@ Then install ElasticSearch python packages: `elasticsearch` and
 `elasticsearch-dsl`.
 
 ```
-$ pip install elasticsearch, elasticsearch-dsl
+$ pip install elasticsearch elasticsearch-dsl
 ```
 
 ### Data
