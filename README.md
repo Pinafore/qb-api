@@ -138,8 +138,7 @@ version of [Qanta](https://github.com/Pinafore/qb).
 First, install and run ElasticSearch:
 
 ```
-$ curl -L -O
-$ https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.2.2.tar.gz
+$ curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-5.2.2.tar.gz
 $ tar -xvf elasticsearch-5.2.2.tar.gz
 $ cd elasticsearch-5.2.2
 $ bash bin/elasticsearch
