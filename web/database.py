@@ -195,7 +195,7 @@ class QuizBowl:
         email_scores = {user.email: scores[user.id] for user in User.query.all()}
         return email_scores
 
-def load_questions(filename='data/nips_dev.json'):
+def load_questions(filename='data/questions.json'):
     with open(filename) as f:
         questions = json.load(f)['questions']
         for q in questions:
