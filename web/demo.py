@@ -12,15 +12,15 @@ class StringAnswerer:
     A really dumb system to answer questions based on string matches
     """
 
-    def __init__(self, server, patterns={"watergate": "Richard Nixon",
-                                         "republican": "Donald Trump",
-                                         "people": "Maori people",
-                                         "found": "Sri Lanka",
-                                         "this man": "Erwin Rommel",
-                                         "author": "Marcel Proust",
+    def __init__(self, server, patterns={"watergate": "Richard_Nixon",
+                                         "republican": "Donald_Trump",
+                                         "people": "Maori_people",
+                                         "found": "Sri_Lanka",
+                                         "this man": "Erwin_Rommel",
+                                         "author": "Marcel_Proust",
                                          "organ": "Spleen",
-                                         "opera": "Porgy and Bess",
-                                         "fancy": "Iggy Azalea"}):
+                                         "opera": "Porgy_and_Bess",
+                                         "fancy": "Iggy_Azalea"}):
         self._server = server
         self._patterns = patterns
         self._buffer = []

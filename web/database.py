@@ -1,6 +1,7 @@
 from collections import defaultdict
 from datetime import datetime
-from csv import DictReader
+import json
+from unidecode import unidecode
 
 from flask import abort
 
@@ -35,6 +36,7 @@ class Result(db.Model):
     position = db.Column(db.Integer)
     guess = db.Column(db.String)
     correct = db.Column(db.Boolean)
+    fold = db.Column(db.String)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
 
@@ -106,7 +108,19 @@ class QuizBowl:
         question = Question.query.filter_by(id=question_id).first()
         if question is None:
             abort(400, 'Question does not exist')
-        correct = question.answer == guess
+
+        true_answer = question.answer
+        if true_answer == guess:
+            correct = True
+        elif unidecode(true_answer) == unidecode(guess):
+            correct = True
+        elif true_answer.lower() == guess.lower():
+            correct = True
+        elif unidecode(true_answer).lower() == unidecode(guess).lower():
+            correct = True
+        else:
+            correct = False
+
         status = QuestionStatus.query.filter_by(user_id=user_id, question_id=question_id).first()
         if result is None:
             result = Result(
@@ -115,23 +129,18 @@ class QuizBowl:
                 guess=guess,
                 correct=correct,
                 position=status.position,
-                word_id=status.word_id)
+                word_id=status.word_id,
+                fold=question.fold
+            )
         else:
             result.guess = guess
             result.correct = correct
             result.position = status.position
             result.word_id = status.word_id
+            result.fold = question.fold
         db.session.add(result)
         db.session.commit()
         return question.answer, correct
-
-    @staticmethod
-    def store_result(user_id, question_id, answer, correct):
-        result = Result.query.filter_by(user_id=user_id, question_id=question_id).count()
-        if result == 0:
-            db.session.add(
-                Result(user_id=user_id, question_id=question_id, answer=answer, correct=correct))
-            db.session.commit()
 
     @staticmethod
     def create_user(email, api_key):
@@ -180,19 +189,20 @@ class QuizBowl:
     @staticmethod
     def get_scores():
         scores = defaultdict(int)
-        for result in Result.query.all():
+        for result in Result.query.filter_by(fold='dev').all():
             scores[result.user_id] += result.correct
 
         email_scores = {user.email: scores[user.id] for user in User.query.all()}
         return email_scores
 
-def load_questions(filename='data/demo.csv'):
+def load_questions(filename='data/nips_dev.json'):
     with open(filename) as f:
-        questions = DictReader(f)
+        questions = json.load(f)['questions']
         for q in questions:
-            q_id = int(q['id'])
-            question = Question(qb_id=q_id, answer=q['answer'], fold=q['fold'])
-            for i, word in enumerate(q['text'].split()):
+            question = Question(
+                qb_id=q['qid'], answer=q['answer'], fold=q['fold']
+            )
+            for i, word in enumerate(q['question'].split()):
                 question.words.append(Word(text=word, position=i))
             db.session.add(question)
         db.session.commit()

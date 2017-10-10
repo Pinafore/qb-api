@@ -22,12 +22,17 @@ You should get something that looks like:
 
 ### Note on Answers
 
-All answers correspond to exactly one wikipedia page with whitespaces replaced with underscores. Note that this means that things such as accented characters may be part of answers since Wikipedia page titles contain these. To mitigate the possibility of answers that are barely incorrect due to trivial mistakes we are providing a file containing all possible wikipedia pages as they appear in the answer set. Since this changed was implemented relatively late (10/9) during the upload of the test data we will consider an answer correct if it satisfies one of the following conditions supposing `s_answer` is the submitted answer and `t_answer` is the true answer. Unidecode can be found here https://pypi.python.org/pypi/Unidecode, and is a package that converts non-ascii characters to their closest visual equivalent. 
+All answers correspond to exactly one wikipedia page with whitespaces replaced with underscores. Note that this means that things such as accented characters may be part of answers since Wikipedia page titles contain these. To mitigate the possibility of answers that are barely incorrect due to trivial mistakes we are providing a file containing all possible wikipedia pages as they appear in the answer set. Since this changed was implemented relatively late (10/9) during the upload of the test data we will consider an answer correct if it satisfies one of the following conditions supposing `s_answer` is the submitted answer and `t_answer` is the true answer. Unidecode can be found here https://pypi.python.org/pypi/Unidecode, and is a package that converts non-ascii characters to their closest visual equivalent.
 
 * `s_answer == t_answer`
 * `unidecode(s_answer) == unidecode(t_answer)`
 * `s_answer.lower() == t_answer.lower()`
 * `unidecode(s_answer).lower() == unidecode(t_answer).lower()`
+
+Wikipedia Pages:
+
+* Line separated text: https://s3-us-west-2.amazonaws.com/pinafore-us-west-2/preprocess/wikipedia-titles.txt
+* Python pickle file returning set of string pages (python 3.6): https://s3-us-west-2.amazonaws.com/pinafore-us-west-2/preprocess/wikipedia-titles.pickle 
 
 ### Required Software
 The QB API uses JSON for all communication which means it interops with any user language. However, we have included a python client implementation along with a demonstration of querying the server in `web/client.py` and `web/demo.py` respectively. Required software is:
