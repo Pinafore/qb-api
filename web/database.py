@@ -45,6 +45,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     api_key = db.Column(db.String, nullable=False)
     email = db.Column(db.String)
+    display_name = db.Column(db.String, nullable=True)
     question_statuses = db.relationship('QuestionStatus')
     queries = db.relationship('Query')
     created_on = db.Column(db.DateTime, server_default=db.func.now())
@@ -192,7 +193,12 @@ class QuizBowl:
         for result in Result.query.filter_by(fold='dev').all():
             scores[result.user_id] += result.correct
 
-        email_scores = {user.email: scores[user.id] for user in User.query.all()}
+        email_scores = {}
+        for user in User.query.all():
+            if user.display_name is not None:
+                email_scores[user.display_name] = scores[user.id]
+            else:
+                email_scores[user.email] = scores[user.id]
         return email_scores
 
 def load_questions(filename='data/questions.json'):
