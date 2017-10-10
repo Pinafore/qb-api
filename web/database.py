@@ -103,8 +103,8 @@ class QuizBowl:
     @staticmethod
     def submit_guess(user_id, question_id, guess):
         result = Result.query.filter_by(user_id=user_id, question_id=question_id).first()
-        if result is not None and LIMITS:
-            abort(400, 'Answered question already')
+        if result is not None and result.fold == 'test':
+            abort(400, 'Answered question already and is in test fold')
 
         question = Question.query.filter_by(id=question_id).first()
         if question is None:
