@@ -45,8 +45,8 @@ def register():
 def leaderboard():
     scores = QuizBowl.get_scores()
     sorted_scores = sorted(scores.items(), key=itemgetter(1), reverse=True)
-    num_questions = QuizBowl.num_questions()
-    return flask.render_template('leaderboard.html', scores=sorted_scores, num_questions=num_questions)
+    num_questions = QuizBowl.num_questions(fold='dev')
+    return flask.render_template('leaderboard.html', scores=sorted_scores, num_questions=num_questions, fold='dev')
 
 
 @server.route('/qb-api/v1/questions')

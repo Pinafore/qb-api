@@ -158,8 +158,11 @@ class QuizBowl:
         return User.query.filter_by(id=user_id, api_key=api_key).count() == 1
 
     @staticmethod
-    def num_questions():
-        return Question.query.count()
+    def num_questions(fold=None):
+        if fold is None:
+            return Question.query.count()
+        else:
+            return Question.query.filter_by(fold=fold).count()
 
     @staticmethod
     def question_length(question_id):
