@@ -4,6 +4,7 @@ import json
 from unidecode import unidecode
 
 from flask import abort
+from sqlalchemy import func as F
 
 from app import db
 
@@ -193,16 +194,23 @@ class QuizBowl:
     @staticmethod
     def get_scores():
         scores = defaultdict(int)
+        test_q_answered = defaultdict(
+            int,
+            db.session.query(
+                Result.user_id, F.count(Result.user_id)
+            ).group_by(Result.user_id).filter(Result.fold == 'test').all()
+        )
         for result in Result.query.filter_by(fold='dev').all():
             scores[result.user_id] += result.correct
 
         email_scores = {}
         for user in User.query.all():
             if user.display_name is not None:
-                email_scores[user.display_name] = scores[user.id]
+                email_scores[user.display_name] = (scores[user.id], test_q_answered[user.id])
             else:
-                email_scores[user.email] = scores[user.id]
+                email_scores[user.email] = (scores[user.id], test_q_answered[user.id])
         return email_scores
+
 
 def load_questions(filename='data/questions.json'):
     with open(filename) as f:

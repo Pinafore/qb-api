@@ -8,14 +8,16 @@
     <tr>
       <th>Rank</th>
       <th>User</th>
-      <th>Questions Correct (Total {{ fold }}): {{ num_questions }})</th>
+      <th>Questions Correct (Total {{ fold }}: {{ num_questions }})</th>
+      <th>Test Questions Answered, Total= {{ num_test_questions }}</th>
     </tr>
     <tbody>
-      {% for user, score in scores %}
+      {% for user, (score, test_q_ans) in scores %}
         <tr>
           <td>{{ loop.index }}</td>
           <td>{{ user }}</td>
           <td>{{ score }}</td>
+          <td>{{ test_q_ans }}</td>
         </tr>
       {% endfor %}
     </tbody>
