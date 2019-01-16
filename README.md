@@ -1,15 +1,17 @@
 # Quiz Bowl API
 
+This repository is deprecated, please visit qanta.org to participate in Quizbowl
+
 Using the code in this repository you can:
 
-1. Query our Quiz Bowl API server run at [qb.entilzha.io](http://qb.entilzha.io)
+1. Query our Quiz Bowl API server run at (No longer running)
 2. Run your on Quiz Bowl API server
 
 ## Query Quiz Bowl API Server
 The main objective of querying the Quiz Bowl API is to evaluate the performance of your system. This requires you to connect to the evaluation server, get a question word by word, and return an answer.  To do so, you must follow these steps to install the required software, acquire and API key, and test your system.
 
 ### Create an Account and API Key
-Visit [qb.entilzha.io/register](http://qb.entilzha.io/register). The page will redirect you to Google for OAuth authentication. We only require a valid email. The page will then redirect you to a page that contains a json response with your email, user id, and API key. Be sure to save this information, but if you lose it you can visit the register link again and the website will redisplay your credentials.
+Visit [/register](/register). The page will redirect you to Google for OAuth authentication. We only require a valid email. The page will then redirect you to a page that contains a json response with your email, user id, and API key. Be sure to save this information, but if you lose it you can visit the register link again and the website will redisplay your credentials.
 
 You should get something that looks like:
 ```
