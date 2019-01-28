@@ -61,6 +61,13 @@ class Question(db.Model):
     fold = db.Column(db.String, nullable=False)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
     updated_on = db.Column(db.DateTime, server_default=db.func.now(), onupdate=db.func.now())
+    
+    @staticmethod
+    def id_translations():
+        translation = {}
+        for q in Question.query.all():
+            translation[q.id] = q.qb_id
+        return translation
 
 
 class Word(db.Model):
