@@ -57,6 +57,7 @@ class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     qb_id = db.Column(db.Integer)
     words = db.relationship('Word', backref='question')
+    n_words = db.Column(db.Integer)
     answer = db.Column(db.String, nullable=False)
     fold = db.Column(db.String, nullable=False)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
@@ -187,7 +188,7 @@ class QuizBowl:
     @staticmethod
     def list_questions():
         questions = Question.query.all()
-        question_list = map(lambda q: {'id': q.id, 'word_count': len(q.words), 'fold': q.fold}, questions)
+        question_list = map(lambda q: {'id': q.id, 'word_count': q.n_words, 'fold': q.fold}, questions)
         return {'questions': list(question_list)}
 
     @staticmethod
@@ -223,10 +224,11 @@ def load_questions(filename='data/questions.json'):
     with open(filename) as f:
         questions = json.load(f)['questions']
         for q in questions:
+            qwords = q['question'].split()
             question = Question(
-                qb_id=q['qid'], answer=q['answer'], fold=q['fold']
+                qb_id=q['qid'], answer=q['answer'], fold=q['fold'], n_words=len(qwords)
             )
-            for i, word in enumerate(q['question'].split()):
+            for i, word in enumerate(qwords):
                 question.words.append(Word(text=word, position=i))
             db.session.add(question)
         db.session.commit()
