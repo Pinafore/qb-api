@@ -57,7 +57,7 @@ class Question(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     qb_id = db.Column(db.Integer)
     words = db.relationship('Word', backref='question')
-    n_words = db.Column(db.Integer)
+    n_words = db.Column(db.Integer, nullable=False)
     answer = db.Column(db.String, nullable=False)
     fold = db.Column(db.String, nullable=False)
     created_on = db.Column(db.DateTime, server_default=db.func.now())
@@ -177,7 +177,7 @@ class QuizBowl:
     def question_length(question_id):
         question = Question.query.filter_by(id=question_id).first()
         if question:
-            return len(question.words)
+            return question.n_words
         else:
             abort(400, 'Invalid question')
 
